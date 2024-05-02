@@ -1,0 +1,17 @@
+.profile-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    border: 1px solid black;
+}
+
+@media (min-width: 992px) {
+
+    .profile-img {
+        width: 80px;
+        height: 80px;
+    }
+}

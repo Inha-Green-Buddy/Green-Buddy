@@ -1,0 +1,7 @@
+.possibilityBtn {
+    transition: transform 1s linear;
+}
+
+.possibilityBtn:hover {
+    transform: scale(1.2);
+}

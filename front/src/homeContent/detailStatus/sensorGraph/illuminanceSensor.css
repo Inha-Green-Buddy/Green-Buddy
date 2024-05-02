@@ -1,0 +1,5 @@
+@media (min-width: 992px) {
+    #chart {
+        height: 250px !important;
+    }
+}

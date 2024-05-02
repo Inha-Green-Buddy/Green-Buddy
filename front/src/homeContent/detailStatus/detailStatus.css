@@ -1,0 +1,22 @@
+
+.modal-content {
+    height: auto;
+    font-size: 25px,
+
+}
+
+.detailPlantStatus {
+    font-size: 18px;
+}
+
+@media (max-width: 992px) {
+
+    .detailPlantStatus {
+        font-size: 14px;
+    }
+
+    .modal-content {
+        font-size: 8px;
+        overflow-y: auto;
+    }
+}

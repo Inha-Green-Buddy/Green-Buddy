@@ -1,0 +1,11 @@
+
+/* NavUpper */
+.nav-link-item {
+    margin-left: 20px;
+    margin-right: 10px;
+    padding-bottom: 100px;
+}
+.nav-link-item:hover {
+    transform: scale(1.1);
+    transition: transform 0.5s;
+}
