@@ -36,7 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 ### application.properties ###
-/src/main/resources/application-secret.properties
+/src/main/resources/application-*.*
 /src/main/resources/keystore.p12
 /src/main/resources/pictures/
 
