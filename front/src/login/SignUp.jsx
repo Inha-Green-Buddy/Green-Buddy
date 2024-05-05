@@ -28,7 +28,6 @@ function SignUp() {
     };
 
     const handleSignUp = () => {
-        console.log(form.userEmail);
         createAccount(form.userName, form.userId, form.userPassword, form.userEmail, form.userPhoneNum, form.userNickname);
     };
 

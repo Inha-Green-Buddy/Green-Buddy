@@ -44,7 +44,6 @@ function RegisterPlant({kitNo}) {
 
     const handlePlantNaming = (e) => {
         setForm({ ...form, plantName: e.currentTarget.querySelector('#plantNameContent').textContent });
-        console.log(form.plantName)
         setIsShowPossibility(false);
     }
 
@@ -106,7 +105,6 @@ function RegisterPlant({kitNo}) {
                                         <div style={{ marginTop: '10px', fontSize: '15px' }}>
                                             Choose your plant
                                             {Object.entries(possibilityObject).map((value, index) => {
-                                                console.log(value)
                                                 return (
                                                     <div key={index}>
                                                         <button className='possibilityBtn' style={{ backgroundColor: '#9CAFB7' , borderRadius: '10px', border: 'none', margin: '5px 5px 5px 0px' }} onClick={handlePlantNaming}>
