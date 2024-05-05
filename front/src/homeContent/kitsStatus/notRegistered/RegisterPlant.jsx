@@ -79,7 +79,6 @@ function RegisterPlant({kitNo}) {
 
     return (
         <div>
-            {/* <button type="button" style={{ color: 'white', backgroundColor: '#73BD72', paddingLeft: '7px', paddingRight: '7px' }} className="btn" data-bs-toggle="modal" data-bs-target={`#registerPlant${kitNo}Modal`} data-bs-whatever="@getbootstrap">Register Plant</button> */}
             <button type="button" style={{ color: 'white', backgroundColor: '#7E8287', paddingLeft: '7px', paddingRight: '7px' }} className="btn" data-bs-toggle="modal" data-bs-target={`#registerPlant${kitNo}Modal`} data-bs-whatever="@getbootstrap">Register Plant</button>
             <div className="modal fade" id={`registerPlant${kitNo}Modal`} tabindex="-1" aria-labelledby="registerPlantLabel" aria-hidden="true">
                 <div className="modal-dialog">

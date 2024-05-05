@@ -16,12 +16,7 @@ function ThisPlantInfo({plantDetail}) {
   return (
     <div>
       Korean name : {plantDetail.plantKoName}<br />
-      {/* LeastIllumninance: {plantDetail.plantLeastIllumninance} Lux<br /> */}
       Prefered place : {plantDetail.plantPlace}<br />
-      {/* Prefered temperature, LeastTemp : {plantDetail.plantTemp} ℃<br /> */}
-      {/* Least Temperature (winter) : {plantDetail.plantWinterTemp} ℃<br /> */}
-      {/* Humidity : {plantDetail.plantHumidity} %<br /> */}
-      {/* Fertility : {plantDetail.plantFertility}<br /> */}
       
       {/* 계절에 따른 정보 출력 */}
       {currentSeason === 'Spring' && <>
@@ -36,11 +31,6 @@ function ThisPlantInfo({plantDetail}) {
       {currentSeason === 'Winter' && <>
         WinterWater : {plantDetail.plantWinterWater}<br />
       </>}
-
-      {/* plantGrowthType : {plantDetail.plantGrowthType}<br />
-      plantAvgHeight : {plantDetail.plantHeight} cm<br />
-      plantAvgArea : {plantDetail.plantArea} cm<br /> */}
-
     </div>
   )
 }
