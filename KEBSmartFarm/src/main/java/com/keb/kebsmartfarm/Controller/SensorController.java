@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.Controller;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.ReleasedKit;
 import com.keb.kebsmartfarm.service.ArduinoKitService;
@@ -21,7 +22,7 @@ public class SensorController {
     @PostMapping("/certificate")
     public ResponseEntity<Long> certificateKit(@RequestBody String serialNumber) {
         ReleasedKit releasedKit = releasedKitService.validateKitSerialNumber(serialNumber)
-                .orElseThrow(() -> new IllegalStateException("해당 키트가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalStateException(Error.KIT_NOT_EXIST));
         return ResponseEntity.ok(releasedKit.getReleaseNum());
     }
 

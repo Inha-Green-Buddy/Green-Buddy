@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.PreviousPlantDto;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.Plant;
@@ -24,7 +25,7 @@ public class PreviousPlantService {
     public PreviousPlantDto movePlantToPreviousPlant(ArduinoKit arduinoKit) {
         Plant plant = arduinoKit.getActivePlant()
                 // 식물이 없으면 오류 발생
-                .orElseThrow(() -> new IllegalStateException("식물이 존재하지 않습니다"));
+                .orElseThrow(() -> new IllegalStateException(Error.PLANT_NOT_EXIST));
         // 식물이 있으면 이전 식물로
         return PreviousPlantDto.of(previousPlantRepository.save(PlantService.toPreviousPlant(plant)));
     }

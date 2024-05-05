@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.MailDto;
 import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.jwt.TokenProvider;
@@ -25,7 +26,6 @@ public class SendMailService {
     private final PasswordEncoder passwordEncoder;
 
     private static final String FROM_ADDRESS = "cnxw4570123@gmail.com";
-
 
 
     public MailDto createMailAndChangePassword(String userEmail, String userId) {
@@ -56,7 +56,9 @@ public class SendMailService {
     }
 
     public void updatePassword(String tempPw, String userEmail) {
-        User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException(userEmail + "에 해당하는 회원이 없습니다"));
+        User user = userRepository.findByUserEmail(userEmail).orElseThrow(
+                () -> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail))
+        );
         user.setUserPassword(passwordEncoder.encode(tempPw));
         userRepository.save(user);
     }

@@ -2,6 +2,7 @@ package com.keb.kebsmartfarm.service;
 
 import com.keb.kebsmartfarm.config.PictureUtils;
 import com.keb.kebsmartfarm.config.SecurityUtil;
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.PlantRequestDto;
 import com.keb.kebsmartfarm.dto.PlantResponseDto;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
@@ -29,7 +30,7 @@ public class PlantService {
     public PlantResponseDto createPlant(ArduinoKit arduinoKit, PlantRequestDto requestDto) {
         // 키트에 이미 키우는 식물이 있으면 오류 반환
         arduinoKit.getActivePlant().
-                ifPresent(plant -> {throw new IllegalStateException("이미 식물이 등록된 키트입니다.");});
+                ifPresent(plant -> {throw new IllegalStateException(Error.KIT_ALREADY_HAVE_PLANT);});
         // 없으면 식물 추가 가능
         MultipartFile file = requestDto.getFile();
         Path destPath = PictureUtils.getDestPath(file);
@@ -47,7 +48,7 @@ public class PlantService {
     public void deletePlant(ArduinoKit arduinoKit) {
         Plant plant = arduinoKit.getActivePlant()
                 //없으면 오류
-                .orElseThrow(() -> new IllegalStateException("식물이 등록되지 않았습니다."));
+                .orElseThrow(() -> new IllegalStateException(Error.PLANT_NOT_REGISTERED));
         // 삭제 시 반드시 연관관계 해제가 필요
         arduinoKit.getPlantList().remove(plant);
         log.info(plant.toString());
@@ -63,7 +64,7 @@ public class PlantService {
     }
 
     public Plant getPlantByPlantNum(long plantNum){
-        return plantRepository.findById(plantNum).orElseThrow(() -> new RuntimeException("식물이 존재하지 않습니다."));
+        return plantRepository.findById(plantNum).orElseThrow(() -> new RuntimeException(Error.PLANT_NOT_EXIST));
     }
 
 }

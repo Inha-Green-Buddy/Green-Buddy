@@ -1,5 +1,7 @@
 package com.keb.kebsmartfarm.Controller;
 
+import com.keb.kebsmartfarm.constant.Message;
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.MailDto;
 import com.keb.kebsmartfarm.dto.TokenDto;
 import com.keb.kebsmartfarm.dto.UserRequestDto;
@@ -51,10 +53,10 @@ public class AuthController {
         }catch (Exception e){
             aftTime = System.currentTimeMillis();
             logger.info("걸린 시간 : " + (aftTime - befTime));
-            return ResponseEntity.ok("ID or Password doesn't match");
+            return ResponseEntity.ok(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
         }
         aftTime = System.currentTimeMillis();
         logger.info("걸린 시간 : " + (aftTime - befTime));
-        return ResponseEntity.ok("Sent Email to given Email Address");
+        return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
     }
 }

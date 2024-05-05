@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.TokenDto;
 import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
@@ -30,7 +31,7 @@ public class AuthService {
 
     public UserResponseDto signup(UserRequestDto requestDto) {
         if (userRepository.existsByUserId(requestDto.getUserId())) {
-            throw new RuntimeException("이미 가입되어 있는 유저입니다");
+            throw new RuntimeException(Error.ALREADY_EXIST_USER);
         }
         User user = requestDto.toUser(passwordEncoder);
         return UserResponseDto.of(userRepository.save(user));
@@ -43,15 +44,15 @@ public class AuthService {
     }
 
     public void findPasswordByIdAndEmail(String userEmail, String userId) {
-        User user = this.userRepository.findByUserEmail(userEmail).orElseThrow(()-> new RuntimeException(userEmail + "에 해당하는 회원이 없습니다"));
+        User user = this.userRepository.findByUserEmail(userEmail).orElseThrow(()-> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail)));
         if(!user.getUserId().equalsIgnoreCase(userId)){
-            throw  new RuntimeException(userId + "에 맞는 회원이 없습니다.");
+            throw  new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userId));
         }
     }
 
     public Map<String, String> findIdByNameAndEmail(String userEmail, String userName) {
         Map<String, String> ret = new HashMap<>();
-        User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException(userEmail + "에 해당하는 회원이 없습니다."));
+        User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail)));
         if(user.getUserName().equalsIgnoreCase(userName)){
             ret.put("userId", user.getUserId());
         }
