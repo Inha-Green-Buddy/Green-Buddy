@@ -2,7 +2,8 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      # 운영 서버는 validate
+      ddl-auto: validate
     properties:
       hibernate:
         show_sql: true
@@ -13,10 +14,11 @@ spring:
     host: smtp.gmail.com
     port: 587
     properties:
-      smtp:
-        auth: true
-        starttls:
-          enable: true
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   profiles: # Managing Sensitive Info
     include: secret
   servlet:
