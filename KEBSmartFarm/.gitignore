@@ -43,4 +43,4 @@ out/
 ../arduino
 
 ### apple Finder ####
-.DS_Store
+**/.DS_Store
