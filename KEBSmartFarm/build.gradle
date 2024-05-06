@@ -28,7 +28,8 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     // MySQL connection
     runtimeOnly 'mysql:mysql-connector-java:8.0.31'
-
+    // for local, dev H2DB Connection
+    runtimeOnly 'com.h2database:h2'
     // spring security
     implementation 'org.springframework.boot:spring-boot-starter-security:2.7.5'
 
