@@ -18,7 +18,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Component
 @EnableWebSecurity
 @Configuration
 @EnableMethodSecurity

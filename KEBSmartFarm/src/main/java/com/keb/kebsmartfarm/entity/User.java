@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "USERS")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +38,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ArduinoKit> arduinoKitList;
 
+    @Enumerated(EnumType.STRING)
     private Authority authority;
     // userPassword와 userNickname은 변경 가능
     public void setUserPassword(String userPassword) {
