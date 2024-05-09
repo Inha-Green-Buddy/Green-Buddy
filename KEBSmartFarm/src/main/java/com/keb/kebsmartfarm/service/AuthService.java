@@ -30,12 +30,24 @@ public class AuthService {
     private final TokenProvider tokenProvider;
 
     public UserResponseDto signup(UserRequestDto requestDto) {
-        if (userRepository.existsByUserId(requestDto.getUserId())) {
-            throw new RuntimeException(Error.ALREADY_EXIST_USER);
-        }
+        validateDuplicateUserId(requestDto.getUserId());
+        validateDuplicateUserEmail(requestDto.getUserEmail());
         User user = requestDto.toUser(passwordEncoder);
         return UserResponseDto.of(userRepository.save(user));
     }
+
+    public void validateDuplicateUserId(String userId) {
+        if (userRepository.existsByUserId(userId)) {
+            throw new RuntimeException(Error.ALREADY_EXIST_ID);
+        }
+    }
+
+    public void validateDuplicateUserEmail(String userEmail){
+        if (userRepository.existsByUserEmail(userEmail)) {
+            throw new RuntimeException(Error.ALREADY_EXIST_EMAIL);
+        }
+    }
+
 
     public TokenDto login(UserRequestDto requestDto) {
         UsernamePasswordAuthenticationToken authenticationToken = requestDto.toAuthentication();
@@ -44,15 +56,20 @@ public class AuthService {
     }
 
     public void findPasswordByIdAndEmail(String userEmail, String userId) {
-        User user = this.userRepository.findByUserEmail(userEmail).orElseThrow(()-> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail)));
+        User user = getUserByEmail(userEmail);
         if(!user.getUserId().equalsIgnoreCase(userId)){
             throw  new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userId));
         }
     }
 
+    private User getUserByEmail(String userEmail) {
+        return userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail)));
+    }
+
     public Map<String, String> findIdByNameAndEmail(String userEmail, String userName) {
         Map<String, String> ret = new HashMap<>();
-        User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail)));
+        User user = getUserByEmail(userEmail);
         if(user.getUserName().equalsIgnoreCase(userName)){
             ret.put("userId", user.getUserId());
         }

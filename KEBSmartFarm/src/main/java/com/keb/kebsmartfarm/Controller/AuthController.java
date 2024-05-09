@@ -12,6 +12,7 @@ import com.keb.kebsmartfarm.service.SendMailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,18 @@ public class AuthController {
     private final AuthService authService;
     private final SendMailService sendMailService;
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
+
+    @PostMapping("/validateId")
+    public ResponseEntity<String> validateId(@RequestBody String userId) {
+        authService.validateDuplicateUserId(userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/validateEmail")
+    public ResponseEntity<String> validateEmail(@RequestBody String userEmail) {
+        authService.validateDuplicateUserEmail(userEmail);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
     @PostMapping("/join")
     public ResponseEntity<UserResponseDto> signup(@RequestBody UserRequestDto userRequestDto) {

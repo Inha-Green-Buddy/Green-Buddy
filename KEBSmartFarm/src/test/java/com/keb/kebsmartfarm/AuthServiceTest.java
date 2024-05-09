@@ -80,7 +80,7 @@ public class AuthServiceTest {
 
         // then
         assertThatThrownBy(() -> authService.signup(userRequestDto))
-                .hasMessage(Error.ALREADY_EXIST_USER)
+                .hasMessage(Error.ALREADY_EXIST_ID)
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -101,11 +101,11 @@ public class AuthServiceTest {
                 // 해당 이메일로 조회가 불가능한 경우
                 () -> assertThatThrownBy(() -> authService.findPasswordByIdAndEmail(userEmail, userId))
                         .isInstanceOf(RuntimeException.class)
-                        .hasMessageContaining(Error.USER_DOES_NOT_MACTH, userEmail),
+                        .hasMessageContaining(String.format(Error.USER_DOES_NOT_MACTH, userEmail)),
                 // 이메일로 조회는 가능하나 아이디가 일치하지 않는 경우
                 () -> assertThatThrownBy(() -> authService.findPasswordByIdAndEmail(userEmail, userId))
                         .isInstanceOf(RuntimeException.class)
-                        .hasMessageContaining(Error.USER_DOES_NOT_MACTH, userId),
+                        .hasMessageContaining(String.format(Error.USER_DOES_NOT_MACTH, userId)),
                 // 정상적으로 찾음
                 () -> assertDoesNotThrow(() -> authService.findPasswordByIdAndEmail(userEmail, userId))
         );
@@ -126,7 +126,52 @@ public class AuthServiceTest {
         assertAll(
                 () -> assertThatThrownBy(() -> authService.findIdByNameAndEmail(userEmail, userName))
                         .isInstanceOf(RuntimeException.class)
-                        .hasMessageContaining(Error.USER_DOES_NOT_MACTH, userEmail),
+                        .hasMessageContaining(String.format(Error.USER_DOES_NOT_MACTH, userEmail)),
                 () -> assertEquals(authService.findIdByNameAndEmail(userEmail, userName), Collections.singletonMap("userId", userId)));
+    }
+
+    @Test
+    void 아이디_중복_O() {
+        // given
+        String userId = "test";
+
+        // when
+        when(userRepository.existsByUserId(userId)).thenReturn(true);
+
+        //then
+        assertThatThrownBy(() -> authService.validateDuplicateUserId(userId))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage(Error.ALREADY_EXIST_ID);
+    }
+
+    @Test
+    void 아이디_중복_X() {
+        // given
+        String userId = "notDuplicated";
+        when(userRepository.existsByUserId(userId)).thenReturn(false);
+
+        // then
+        assertDoesNotThrow(() -> authService.validateDuplicateUserId(userId));
+    }
+
+    @Test
+    void 이메일_중복_O(){
+        // given
+        String userEmail = "test@test.com";
+        when(userRepository.existsByUserEmail(userEmail)).thenReturn(true);
+
+        // then
+        assertThatThrownBy(() -> authService.validateDuplicateUserEmail(userEmail))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining(Error.ALREADY_EXIST_EMAIL);
+    }
+    @Test
+    void 이메일_중복_X() {
+        // given
+        String userEmail = "test01@test.com";
+        when(userRepository.existsByUserEmail(userEmail)).thenReturn(false);
+
+        // then
+        assertDoesNotThrow(() -> authService.validateDuplicateUserEmail(userEmail));
     }
 }

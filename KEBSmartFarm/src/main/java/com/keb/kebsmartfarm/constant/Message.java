@@ -5,7 +5,8 @@ public class Message {
         public static final String ALREADY_REGISTERD_KIT = "이미 등록된 키트입니다.";
         public static final String KIT_NOT_EXIST = "해당 키트가 존재하지 않습니다.";
         public static final String KIT_NOT_REGISTERED = "등록되지 않은 키트입니다.";
-        public static final String ALREADY_EXIST_USER = "이미 가입되어 있는 유저입니다";
+        public static final String ALREADY_EXIST_ID = "이미 사용중인 아이디입니다";
+        public static final String ALREADY_EXIST_EMAIL = "이미 사용중인 이메일입니다";
         public static final String USER_DOES_NOT_MACTH = "%s에 해당하는 회원이 없습니다";
 
         public static final String INVALID_SERIAL_NUMBER = "존재하지 않는 시리얼 번호입니다.";
