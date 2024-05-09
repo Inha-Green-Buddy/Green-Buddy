@@ -54,5 +54,16 @@ dependencies {
 }
 
 tasks.named('test') {
+
     useJUnitPlatform()
+}
+tasks {
+    processResources {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}
+
+bootRun{
+    String activeProfile = System.properties['spring.profiles.active']
+    systemProperty "spring.profiles.active", activeProfile
 }
