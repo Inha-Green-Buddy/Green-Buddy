@@ -6,7 +6,7 @@ export const useFetch = () => {
 
     const [result, setResult] = useState('');
 
-    const getReq = async ({url, method, data, token}) => {
+    const getReq = async ({url, data, token}) => {
         const headers = {};
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
@@ -19,7 +19,7 @@ export const useFetch = () => {
         }
     }
 
-    const postReq = async ({url, method, data, token}) => {
+    const postReq = async ({url, data, token}) => {
         const headers = {};
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
