@@ -10,6 +10,7 @@ import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,20 +25,20 @@ import java.util.Map;
 @RequestMapping("/auth")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final AuthService authService;
     private final SendMailService sendMailService;
-    private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
     @PostMapping("/validateId")
-    public ResponseEntity<String> validateId(@RequestBody String userId) {
-        authService.validateDuplicateUserId(userId);
+    public ResponseEntity<String> validateId(@RequestBody Map<String, String> userId) {
+        authService.validateDuplicateUserId(userId.get("userId"));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/validateEmail")
-    public ResponseEntity<String> validateEmail(@RequestBody String userEmail) {
-        authService.validateDuplicateUserEmail(userEmail);
+    public ResponseEntity<String> validateEmail(@RequestBody Map<String, String> userEmail) {
+        authService.validateDuplicateUserEmail(userEmail.get("userEmail"));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -65,11 +66,11 @@ public class AuthController {
             sendMailService.mailSend(mailDto);
         }catch (Exception e){
             aftTime = System.currentTimeMillis();
-            logger.info("걸린 시간 : " + (aftTime - befTime));
+            log.info("걸린 시간 : {}", aftTime - befTime);
             return ResponseEntity.ok(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
         }
         aftTime = System.currentTimeMillis();
-        logger.info("걸린 시간 : " + (aftTime - befTime));
+        log.info("걸린 시간 : {}", aftTime - befTime);
         return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
     }
 }
