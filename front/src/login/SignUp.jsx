@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import axios from 'axios'
+import { useFetch } from '../hooks/useFetch';
 
 function SignUp() {
 
@@ -51,19 +52,14 @@ function SignUp() {
         userNickname: '',
     })
 
+    const {result, postReq} = useFetch();
+
     const createAccount = async(userName, userId, userPassword, userEmail, userPhoneNum, userNickname) => {
-        await axios.post(`${Server_IP}/auth/join`, { userName: userName, userId: userId, userPassword: userPassword, userEmail: userEmail, userPhoneNum: userPhoneNum, userNickname: userNickname },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
-            .then((res) => {
-                alert("Success")
-            })
-            .catch((error) => {
-                alert("Server error");
-            })
+        postReq({
+            url: `auth/join`,
+            data:{ userName: userName, userId: userId, userPassword: userPassword, userEmail: userEmail, userPhoneNum: userPhoneNum, userNickname: userNickname },
+            token: true,
+        })
     } 
 
     return (
