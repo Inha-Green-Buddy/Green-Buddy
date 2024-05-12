@@ -6,13 +6,10 @@ import com.keb.kebsmartfarm.dto.MailDto;
 import com.keb.kebsmartfarm.dto.TokenDto;
 import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
-import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,13 +27,13 @@ public class AuthController {
     private final AuthService authService;
     private final SendMailService sendMailService;
 
-    @PostMapping("/validateId")
+    @PostMapping("/validate/id")
     public ResponseEntity<String> validateId(@RequestBody Map<String, String> userId) {
         authService.validateDuplicateUserId(userId.get("userId"));
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("/validateEmail")
+    @PostMapping("/validate/email")
     public ResponseEntity<String> validateEmail(@RequestBody Map<String, String> userEmail) {
         authService.validateDuplicateUserEmail(userEmail.get("userEmail"));
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -52,12 +49,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(userRequestDto));
     }
 
-    @PostMapping("/findId")
+    @PostMapping("/find/id")
     public ResponseEntity<Map<String , String>> findUserId(@RequestBody UserRequestDto requestDto) {
         return ResponseEntity.ok(authService.findIdByNameAndEmail(requestDto.getUserEmail(), requestDto.getUserName()));
     }
 
-    @PostMapping("/findPw")
+    @PostMapping("/find/password")
     public ResponseEntity<String> findUserPassword(@RequestBody UserRequestDto request) {
         long befTime = System.currentTimeMillis(), aftTime;
         try{
@@ -66,7 +63,7 @@ public class AuthController {
             sendMailService.mailSend(mailDto);
         }catch (Exception e){
             aftTime = System.currentTimeMillis();
-            log.info("걸린 시간 : {}", aftTime - befTime);
+            log.error("걸린 시간 : {}", aftTime - befTime);
             return ResponseEntity.ok(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
         }
         aftTime = System.currentTimeMillis();
