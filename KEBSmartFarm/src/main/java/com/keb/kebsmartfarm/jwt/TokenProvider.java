@@ -1,15 +1,13 @@
 package com.keb.kebsmartfarm.jwt;
 
 
-import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.TokenDto;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts.SIG;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.apache.juli.logging.Log;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,23 +17,21 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class TokenProvider {
-    private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;
-    private final Key key;
+    private final SecretKey key;
 
-    public TokenProvider(@Value("${jwt.secret}") String secretKey){
-        byte[] keysBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keysBytes);
+    public TokenProvider(@Value("${jwt.secret}") String secretKey) {
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
     // token 생성
@@ -46,13 +42,13 @@ public class TokenProvider {
         long now = (new Date()).getTime();
 
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        System.out.println("tokenExpiresIn = " + tokenExpiresIn);
+        log.info("tokenExpiresIn = {}", tokenExpiresIn);
 
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
+                .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .setExpiration(tokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .expiration(tokenExpiresIn)
+                .signWith(key, SIG.HS512)
                 .compact();
 
         return TokenDto.builder()
@@ -80,23 +76,23 @@ public class TokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException exception) {
-            logger.info("잘못된 JWT 서명입니다.");
+            log.error("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-            logger.info("만료된 JWT 서명입니다.");
+            log.error("만료된 JWT 서명입니다.");
         } catch (UnsupportedJwtException e) {
-            logger.info("지원되지 않는 JWT 서명입니다.");
+            log.error("지원되지 않는 JWT 서명입니다.");
         } catch (IllegalArgumentException e) {
-            logger.info("JWT 토큰이 잘못되었습니다");
+            log.error("JWT 토큰이 잘못되었습니다");
         }
         return false;
     }
 
     private Claims parseClaims(String accessToken) {
         try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+            return Jwts.parser().verifyWith(key).build().parseSignedClaims(accessToken).getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
