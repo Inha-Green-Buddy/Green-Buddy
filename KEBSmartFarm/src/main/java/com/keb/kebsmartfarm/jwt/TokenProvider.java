@@ -27,11 +27,14 @@ import java.util.stream.Collectors;
 public class TokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "bearer";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;
+    private final long ACCESS_TOKEN_EXPIRE_TIME;
     private final SecretKey key;
 
-    public TokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public TokenProvider(
+            @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.access_token_exp}") long accessExp) {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        this.ACCESS_TOKEN_EXPIRE_TIME = accessExp;
     }
 
     // token 생성
@@ -74,20 +77,21 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    public boolean validateToken(String token) {
+    public TokenStatus validateToken(String token) {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
-            return true;
+            return TokenStatus.IS_VALID;
         } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException exception) {
             log.error("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
             log.error("만료된 JWT 서명입니다.");
+            return TokenStatus.IS_EXPIRED;
         } catch (UnsupportedJwtException e) {
             log.error("지원되지 않는 JWT 서명입니다.");
         } catch (IllegalArgumentException e) {
             log.error("JWT 토큰이 잘못되었습니다");
         }
-        return false;
+        return TokenStatus.IS_NOT_VALID;
     }
 
     private Claims parseClaims(String accessToken) {
