@@ -6,6 +6,7 @@ import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.jwt.TokenProvider;
+import com.keb.kebsmartfarm.repository.RefreshTokenRepository;
 import com.keb.kebsmartfarm.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

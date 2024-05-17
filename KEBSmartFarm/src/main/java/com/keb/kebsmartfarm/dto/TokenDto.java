@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,5 +13,8 @@ import lombok.NoArgsConstructor;
 public class TokenDto {
     private String grantType;
     private String accessToken;
-    private Long tokenExpiresIn;
+    @JsonIgnore
+    private String refreshToken;
+    @JsonIgnore
+    private Integer expiresIn;
 }

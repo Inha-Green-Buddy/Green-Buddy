@@ -6,6 +6,7 @@ import com.keb.kebsmartfarm.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -52,7 +53,8 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/sensor/**"),
                                 new AntPathRequestMatcher("/v3/**"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
-                                new AntPathRequestMatcher("/kit/files/**")
+                                new AntPathRequestMatcher("/kit/files/**"),
+                                new AntPathRequestMatcher("/error") // 기본 에러 처리 필요
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )

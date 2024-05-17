@@ -8,9 +8,11 @@ import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,23 +47,31 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody UserRequestDto userRequestDto) {
-        return ResponseEntity.ok(authService.login(userRequestDto));
+    public ResponseEntity<TokenDto> login(@RequestBody UserRequestDto userRequestDto, HttpServletResponse response) {
+        TokenDto tokenDto = authService.login(userRequestDto);
+        ResponseCookie cookie =
+                ResponseCookie.from("refresh_token", tokenDto.getRefreshToken())
+                        .httpOnly(true).maxAge(tokenDto.getExpiresIn())
+                        .secure(true)
+                        .path("/")
+                        .build();
+        response.setHeader("set-cookie", cookie.toString());
+        return ResponseEntity.ok(tokenDto);
     }
 
     @PostMapping("/find/id")
-    public ResponseEntity<Map<String , String>> findUserId(@RequestBody UserRequestDto requestDto) {
+    public ResponseEntity<Map<String, String>> findUserId(@RequestBody UserRequestDto requestDto) {
         return ResponseEntity.ok(authService.findIdByNameAndEmail(requestDto.getUserEmail(), requestDto.getUserName()));
     }
 
     @PostMapping("/find/password")
     public ResponseEntity<String> findUserPassword(@RequestBody UserRequestDto request) {
         long befTime = System.currentTimeMillis(), aftTime;
-        try{
+        try {
             authService.findPasswordByIdAndEmail(request.getUserEmail(), request.getUserId());
             MailDto mailDto = sendMailService.createMailAndChangePassword(request.getUserEmail(), request.getUserId());
             sendMailService.mailSend(mailDto);
-        }catch (Exception e){
+        } catch (Exception e) {
             aftTime = System.currentTimeMillis();
             log.error("걸린 시간 : {}", aftTime - befTime);
             return ResponseEntity.ok(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
