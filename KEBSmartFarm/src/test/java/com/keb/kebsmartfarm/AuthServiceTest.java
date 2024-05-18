@@ -54,9 +54,9 @@ public class AuthServiceTest {
         User user = userRequestDto.toUser(passwordEncoder);
 
         // 중복 ID가 없음
-        when(userRepository.existsByUserId(any())).thenReturn(false);
-        when(userRepository.save(any())).thenReturn(user);
-        when(passwordEncoder.encode(any())).thenReturn("TestEncoded");
+        when(userRepository.existsByUserId(any(String.class))).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(passwordEncoder.encode(any(String.class))).thenReturn("TestEncoded");
         //when
         UserResponseDto savedUser = authService.signup(userRequestDto);
 
@@ -76,7 +76,7 @@ public class AuthServiceTest {
         User user = userRequestDto.toUser(passwordEncoder);
         // when
         // 중복 아이디가 있다
-        when(userRepository.existsByUserId(any())).thenReturn(true);
+        when(userRepository.existsByUserId(any(String.class))).thenReturn(true);
 
         // then
         assertThatThrownBy(() -> authService.signup(userRequestDto))

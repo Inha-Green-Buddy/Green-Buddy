@@ -8,18 +8,22 @@ import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import org.springframework.web.util.WebUtils;
 
 @RequestMapping("/auth")
 @RestController
@@ -79,5 +83,20 @@ public class AuthController {
         aftTime = System.currentTimeMillis();
         log.info("걸린 시간 : {}", aftTime - befTime);
         return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenDto> refreshAccessToken(@RequestBody Map<String, String> token
+            , @CookieValue("refresh_token") String refreshToken
+            , HttpServletResponse response){
+        TokenDto tokens = authService.getNewTokens(token.get("accessToken"), refreshToken);
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", tokens.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(tokens.getExpiresIn())
+                .path("/")
+                .build();
+        response.setHeader("set-cookie", cookie.toString());
+        return ResponseEntity.ok(tokens);
     }
 }

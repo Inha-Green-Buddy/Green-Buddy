@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts.SIG;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +50,12 @@ public class TokenProvider {
 
     // token 생성
     public TokenDto generateTokenDto(Authentication authentication) {
-        String accessToken = generateAccessToken(authentication);
-        RefreshToken refreshToken = generateRefreshToken(authentication);
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        String name = authentication.getName();
+        String accessToken = generateAccessToken(authorities, name);
+        RefreshToken refreshToken = generateRefreshToken(Long.valueOf(name));
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
                 .accessToken(accessToken)
@@ -59,29 +64,64 @@ public class TokenProvider {
                 .build();
     }
 
-    private String generateAccessToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+    private String generateAccessToken(String authorities, String memberId) {
+
         long now = (new Date()).getTime();
 
         Date tokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .subject(authentication.getName())
+                .subject(memberId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .expiration(tokenExpiresIn)
                 .signWith(key, SIG.HS512)
                 .compact();
     }
 
+    public void validateRefreshToken(String refreshToken, long memberId) {
+        /*
+        1. 토큰을 찾을 수 없음
+            a) 리프레시 토큰이 만료됨
+            b) 잘못된 UUID를 제시 -> 해킹 시도가 있다.
+         */
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByMemberId(memberId);
+        refreshTokenRepository.deleteAll(tokens);
+        long matches = tokens.stream()
+                .filter(token -> token != null && token.getRefreshToken().equals(refreshToken))
+                .count();
+        if (matches != 1) {
+            throw new RuntimeException("토큰이 유효하지 않습니다.");
+        }
+    }
+
+    public TokenDto reissueTokens(String accessToken, String refreshToken) {
+        Claims claims = parseClaims(accessToken);
+
+        if (claims.get(AUTHORITIES_KEY) == null) {
+            throw new RuntimeException("권한정보가 없는 토큰입니다.");
+        }
+        long memberId = Long.parseLong(claims.getSubject());
+        String auth = claims.get(AUTHORITIES_KEY).toString();
+        log.info("auth = {}, memberId = {}", auth, memberId);
+        validateRefreshToken(refreshToken, memberId);
+
+        RefreshToken newRefreshToken = generateRefreshToken(memberId);
+        String newAccessToken = generateAccessToken(auth, Long.toString(memberId));
+
+        return TokenDto.builder()
+                .grantType(BEARER_TYPE)
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken.getRefreshToken())
+                .expiresIn(REFRESH_TOKEN_EXPIRE_TIME)
+                .build();
+    }
+
     /*
      * Authentication은 Principal, Credentials, Authorities로 구성됨.
      * Principal에 저장된 유저아이디 꺼내서 토큰에 넣기
      */
-    public RefreshToken generateRefreshToken(Authentication authentication) {
-        Long userID = Long.parseLong(((UserDetails) authentication.getPrincipal()).getUsername());
-        RefreshToken refreshToken = new RefreshToken(UUID.randomUUID().toString(), userID, REFRESH_TOKEN_EXPIRE_TIME);
+    public RefreshToken generateRefreshToken(Long memberId) {
+        RefreshToken refreshToken = new RefreshToken(UUID.randomUUID().toString(), memberId, REFRESH_TOKEN_EXPIRE_TIME);
         return refreshTokenRepository.save(refreshToken);
     }
 

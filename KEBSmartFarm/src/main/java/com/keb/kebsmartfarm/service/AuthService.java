@@ -49,6 +49,9 @@ public class AuthService {
         }
     }
 
+    public TokenDto getNewTokens(String accessToken, String refreshToken) {
+        return tokenProvider.reissueTokens(accessToken, refreshToken);
+    }
 
     public TokenDto login(UserRequestDto requestDto) {
         UsernamePasswordAuthenticationToken authenticationToken = requestDto.toAuthentication();
