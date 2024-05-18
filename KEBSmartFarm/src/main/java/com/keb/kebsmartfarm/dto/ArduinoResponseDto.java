@@ -1,7 +1,7 @@
 package com.keb.kebsmartfarm.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.keb.kebsmartfarm.config.PictureUtils;
+import com.keb.kebsmartfarm.util.PictureUtils;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.Plant;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

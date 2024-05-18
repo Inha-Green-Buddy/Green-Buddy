@@ -1,4 +1,4 @@
-package com.keb.kebsmartfarm.config;
+package com.keb.kebsmartfarm.util;
 
 import com.keb.kebsmartfarm.constant.Message.Error;
 import org.springframework.security.core.Authentication;

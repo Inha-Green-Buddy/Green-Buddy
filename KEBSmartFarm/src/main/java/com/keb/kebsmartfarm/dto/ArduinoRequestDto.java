@@ -1,6 +1,6 @@
 package com.keb.kebsmartfarm.dto;
 
-import com.keb.kebsmartfarm.config.SecurityUtil;
+import com.keb.kebsmartfarm.util.SecurityUtil;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 
 @Getter
 @NoArgsConstructor

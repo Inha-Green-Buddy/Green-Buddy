@@ -1,6 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
-import com.keb.kebsmartfarm.config.SecurityUtil;
+import com.keb.kebsmartfarm.util.SecurityUtil;
 import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.entity.User;

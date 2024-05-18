@@ -1,4 +1,4 @@
-package com.keb.kebsmartfarm.config;
+package com.keb.kebsmartfarm.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

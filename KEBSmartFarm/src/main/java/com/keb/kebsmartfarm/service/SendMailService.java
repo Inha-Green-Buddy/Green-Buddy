@@ -3,11 +3,9 @@ package com.keb.kebsmartfarm.service;
 import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.MailDto;
 import com.keb.kebsmartfarm.entity.User;
-import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -18,8 +16,8 @@ import org.springframework.stereotype.Service;
 @Component
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SendMailService {
-    private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
     private final UserRepository userRepository;
 
     private final JavaMailSender mailSender;
@@ -29,7 +27,7 @@ public class SendMailService {
 
 
     public MailDto createMailAndChangePassword(String userEmail, String userId) {
-        logger.info("메일 보내기");
+        log.info("메일 보내기");
         String randPw = getTempPassword();
         MailDto dto = new MailDto();
         dto.setAddress(userEmail);
@@ -72,6 +70,6 @@ public class SendMailService {
         message.setText(mailDto.getMessage());
 
         mailSender.send(message);
-        logger.info("메일 전송 완료");
+        log.info("메일 전송 완료");
     }
 }

@@ -1,7 +1,7 @@
 package com.keb.kebsmartfarm.service;
 
-import com.keb.kebsmartfarm.config.PictureUtils;
-import com.keb.kebsmartfarm.config.SecurityUtil;
+import com.keb.kebsmartfarm.util.PictureUtils;
+import com.keb.kebsmartfarm.util.SecurityUtil;
 import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.PlantRequestDto;
 import com.keb.kebsmartfarm.dto.PlantResponseDto;
@@ -16,11 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
+
 @Slf4j
 @Service
 @AllArgsConstructor

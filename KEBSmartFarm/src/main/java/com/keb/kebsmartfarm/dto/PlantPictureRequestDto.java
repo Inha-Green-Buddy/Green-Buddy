@@ -1,6 +1,6 @@
 package com.keb.kebsmartfarm.dto;
 
-import com.keb.kebsmartfarm.config.SecurityUtil;
+import com.keb.kebsmartfarm.util.SecurityUtil;
 import com.keb.kebsmartfarm.entity.PlantPicture;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -102,7 +102,7 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    public TokenStatus validateToken(String token) {
+    public TokenStatus validateAccessToken(String token) {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return TokenStatus.IS_VALID;

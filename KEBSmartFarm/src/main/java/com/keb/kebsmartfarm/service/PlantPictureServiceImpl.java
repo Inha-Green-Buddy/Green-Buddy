@@ -1,6 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
-import com.keb.kebsmartfarm.config.PictureUtils;
+import com.keb.kebsmartfarm.util.PictureUtils;
 import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.PlantPictureRequestDto;
 import com.keb.kebsmartfarm.dto.PlantPictureResponseDto;
@@ -20,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.keb.kebsmartfarm.config.PictureUtils.rootLocation;
+import static com.keb.kebsmartfarm.util.PictureUtils.rootLocation;
 
 @Slf4j
 @Service

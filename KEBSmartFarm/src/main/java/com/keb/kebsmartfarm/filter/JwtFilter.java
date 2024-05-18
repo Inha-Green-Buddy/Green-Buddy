@@ -1,6 +1,6 @@
 package com.keb.kebsmartfarm.filter;
 
-import com.keb.kebsmartfarm.config.JsonUtil;
+import com.keb.kebsmartfarm.util.JsonUtil;
 import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.jwt.TokenStatus;
 import jakarta.servlet.FilterChain;
@@ -35,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = resolveToken(request);
         if (StringUtils.hasText(jwt)) {
-            TokenStatus status = tokenProvider.validateToken(jwt);
+            TokenStatus status = tokenProvider.validateAccessToken(jwt);
             if (status == TokenStatus.IS_VALID) {
                 Authentication authentication = tokenProvider.getAuthentication(jwt);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
