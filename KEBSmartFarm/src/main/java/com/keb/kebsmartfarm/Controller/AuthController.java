@@ -8,8 +8,6 @@ import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-import org.springframework.web.util.WebUtils;
 
 @RequestMapping("/auth")
 @RestController
@@ -53,14 +50,18 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody UserRequestDto userRequestDto, HttpServletResponse response) {
         TokenDto tokenDto = authService.login(userRequestDto);
-        ResponseCookie cookie =
-                ResponseCookie.from("refresh_token", tokenDto.getRefreshToken())
-                        .httpOnly(true).maxAge(tokenDto.getExpiresIn())
-                        .secure(true)
-                        .path("/")
-                        .build();
+        ResponseCookie cookie = createRefreshTokenCookie(tokenDto.getRefreshToken(), tokenDto.getExpiresIn());
         response.setHeader("set-cookie", cookie.toString());
         return ResponseEntity.ok(tokenDto);
+    }
+
+    private ResponseCookie createRefreshTokenCookie(String refreshToken, int expiresIn) {
+        return ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true).maxAge(expiresIn)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .build();
     }
 
     @PostMapping("/find/id")
@@ -88,14 +89,9 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<TokenDto> refreshAccessToken(@RequestBody Map<String, String> token
             , @CookieValue("refresh_token") String refreshToken
-            , HttpServletResponse response){
+            , HttpServletResponse response) {
         TokenDto tokens = authService.getNewTokens(token.get("accessToken"), refreshToken);
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", tokens.getRefreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(tokens.getExpiresIn())
-                .path("/")
-                .build();
+        ResponseCookie cookie = createRefreshTokenCookie(tokens.getRefreshToken(), tokens.getExpiresIn());
         response.setHeader("set-cookie", cookie.toString());
         return ResponseEntity.ok(tokens);
     }
