@@ -1,36 +1,65 @@
 import axios from "axios";
 import { useState } from "react";
+import Cookies from "js-cookie";
+import { useAccessToken } from "../contexts/AccessTokenContext";
 
 export const useFetch = () => {
     const Server_IP = process.env.REACT_APP_Server_IP;
 
-    const [result, setResult] = useState('');
+    const [response, setResponse] = useState('');
+    const [statusCode, setStatusCode] = useState('');
+    const { accessToken, setAccessToken } = useAccessToken();
 
-    const getReq = async ({url, data, token}) => {
+    const reissueAccessToken = async () => {
+        await axios.get(`${Server_IP}/auth/reissue`, {
+            accessToken: accessToken
+        })
+        .then((res) => {
+            setAccessToken(res.data.accessToken)
+        });
+    }
+
+    const getReq = async ({url, data, token, cookies}) => {
         const headers = {};
         if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+            headers['Authorization'] = `Bearer ${accessToken}`;
         }
         try {
             const response = await axios.get(`${Server_IP}/${url}`, { headers });
-            setResult(response.data);
+            setResponse(response.data);
+            setStatusCode(response.status);
         } catch (err) {
+            if (err.response.status === 403) {
+                await reissueAccessToken();
+                getReq({ url, data, token, cookies });
+            }
             console.log(err);
+            setStatusCode(err.response.status);
         }
     }
 
-    const postReq = async ({url, data, token}) => {
-        const headers = {};
+    const postReq = async ({url, data, token, cookies}) => {
+        const header = { "Content-Type": "application/json" };
         if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+            header['Authorization'] = `Bearer ${accessToken})}`;
         }
         try {
-            const response = await axios.post(`${Server_IP}/${url}`, data, { headers }); // 여기서 axios.get을 axios.post로 변경해야 할 것 같습니다.
-            setResult(response.data);
+            const response = await axios.post(`${Server_IP}/${url}`,
+                data,
+                { headers: header },
+                cookies ? { withCredentials: true } : {},
+            );
+            setResponse(response.data);
+            setStatusCode(response.status);
         } catch (err) {
+            if (err.response.status === 403) {
+                reissueAccessToken();
+                postReq({ url, data, token, cookies });
+            }
+            setStatusCode(err.response.status);
             console.log(err);
         }
     }
 
-    return { result, getReq, postReq };
+    return { statusCode, response, getReq, postReq };
 }

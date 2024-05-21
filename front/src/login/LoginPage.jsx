@@ -10,6 +10,9 @@ import FindPassword from './FindPassword';
 import { useCookies } from 'react-cookie';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import { useFetch } from '../hooks/useFetch';
+import { useAccessToken } from '../contexts/AccessTokenContext';
+import { useIsLogin } from '../contexts/IsLoginContext';
 
 export default function LoginPage() {
     const Server_IP = process.env.REACT_APP_Server_IP;
@@ -18,7 +21,10 @@ export default function LoginPage() {
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const focusRef = useRef();
     const navigate = useNavigate();
-    
+    const { statusCode: loginStatusCode, postReq: loginPost, response: loginResponse } = useFetch();
+    const { accessToken, setAccessToken } = useAccessToken();
+    const { isLogin, setIsLogin } = useIsLogin();
+
     useEffect(() => {
         focusRef.current.focus()
     }, [])
@@ -41,24 +47,24 @@ export default function LoginPage() {
         }
     }
 
-    const accessToken = Cookies.get('accessToken');
-
     const loginRequest = async (userId, password) => {
-        await axios.post(`${Server_IP}/auth/login`, { userId: userId, userPassword: password },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
-            .then((res) => {
-                setCookie('accessToken', res.data.accessToken);
-                navigate("/");
-                window.location.reload();
-            })
-            .catch((error) => {
+        await loginPost({
+            url: 'auth/login',
+            data: { userId: userId, userPassword: password },
+            token: false,
+        })
+    }
+
+    useEffect(() => {
+        if (loginResponse) {
+            if (loginStatusCode === 200) {
+                setAccessToken(loginResponse.accessToken)
+                navigate('/')
+            } else {
                 alert("Please check your Id and Password.");
-            });
-    };
+            }
+        }
+    }, [loginResponse])
 
     return (
         <>

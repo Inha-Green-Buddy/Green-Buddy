@@ -3,8 +3,11 @@ import { useFetch } from '../hooks/useFetch';
 
 function SignUp() {
 
-    const {postReq} = useFetch();
-    const {getReq} = useFetch();
+    const { statusCode: signUpStatusCode, postReq: signUpPost } = useFetch();
+    const { getReq, postReq } = useFetch();
+    const { statusCode: validateIdStatusCode, postReq: validateIdPost } = useFetch();
+    const { statusCode: validateEmailStatusCode, postReq: validateEmailPost } = useFetch();
+    const { statusCode: validateAuthCodeStatusCode, postReq: validateAuthCodePost } = useFetch();
     const [isAuthCode, setIsAuthCode] = useState(false);
     const [isEmailChecked, setIsEmailChecked] = useState(false);
     const [isIdChecked, setIsIdChecked] = useState(false);
@@ -38,6 +41,9 @@ function SignUp() {
     
     const isFormComplete = () => {
         for (let key in form) {
+            if (key === 'authCode') {
+                continue
+            }
             if (!form[key]) {
                 return false;
             }
@@ -55,37 +61,68 @@ function SignUp() {
         authCode: '',
     })
     
-    const createAccount = async(userName, userId, userPassword, userEmail, userPhoneNum, userNickname) => {
-        postReq({
+    const createAccount = async (userName, userId, userPassword, userEmail, userPhoneNum, userNickname) => {
+        await signUpPost({
             url: `auth/join`,
             data:{ userName: userName, userId: userId, userPassword: userPassword, userEmail: userEmail, userPhoneNum: userPhoneNum, userNickname: userNickname },
-            token: true,
+            token: false,
         })
+
+        if (signUpStatusCode === 200) {
+            alert('Complete')
+        } else {
+            alert('please try again')
+        }
     } 
     
-    const checkId = () => {
-        // getReq({
-        //     url:
-        // })
+    const checkId = async (e) => {
+        e.preventDefault();
         setIsIdChecked(true);
+        // await validateIdPost({
+        //     url: 'Auth/validateId',
+        //     data: { userId: form.userId },
+        //     token: false,
+        // })
+        // if (validateIdStatusCode === 200) {
+        //     setIsIdChecked(true);
+        // } else {
+        //     alert('already exists')
+        //     setForm({ ...form, userId: '' })
+        // }
     }
     
-    const checkEmail = (e) => {
-        e.preventDefault(); // 기본 동작 중단
-        // 서버에 중복인지 확인
-        setIsAuthCode(true);
-        // getReq({
-        //     url:
-        // })
-        // setIsEmailChecked(true);
-        // setIsAuthCode(true);
-    }
-
-    const checkAuthCode = (e) => {
+    const checkEmail = async (e) => {
         e.preventDefault();
-        // 사버에 코드 확인
+        setIsAuthCode(true);
+        // setIsEmailChecked(true);
+        // await validateEmailPost({
+            //     url: 'Auth/validateEmail',
+            //     data: { userId: form.userEmail },
+            //     token: false,
+            // })
+            // if (validateEmailStatusCode === 200) {
+                //     setIsEmailChecked(true);
+                // } else {
+                    //     alert('already exists')
+                    //     setForm({ ...form, userEmail: '' })
+                    // }
+                }
+                
+    const checkAuthCode = async (e) => {
+        e.preventDefault();
         setIsAuthCode(false);
         setIsEmailChecked(true);
+        // await validateAuthCodePost({
+        //     url: 'Auth/validateEmail',
+        //     data: { userId: form.userEmail },
+        //     token: false,
+        // })
+        // if (validateAuthCodeStatusCode === 200) {
+        //     setIsAuthCode(false);
+        // } else {
+        //     alert('already exists')
+        //     setForm({ ...form, userEmail: '' })
+        // }
     }
 
     return (
@@ -112,7 +149,7 @@ function SignUp() {
                                                 </div>
                                             ) :
                                             (
-                                                <button onClick={checkId}>
+                                                <button onClick={(e) => checkId(e)}>
                                                     <div className='bg-green-300 rounded-xl pl-2 pr-2 ml-2'>
                                                         check
                                                     </div>

@@ -12,31 +12,33 @@ import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import SearchContent from './searchContent/SearchContent';
-
-const checkLogin = () => {
-  if (Cookies.get("accessToken")) {
-    return true
-  } else {
-    return false
-  }
-}
+import { useAccessToken } from './contexts/AccessTokenContext';
+import { useIsLogin } from './contexts/IsLoginContext';
 
 function App() {
   
+  const { accessToken } = useAccessToken();
+  const { isLogin, setIsLogin } = useIsLogin();
+
   const dispatch = useDispatch()
-  let isLogin = checkLogin();
   
+  useEffect(() => {
+    if (accessToken) {
+      setIsLogin(true);
+    }
+  }, [accessToken])
+
   if (isLogin) {
-    dispatch(fetchUser());
+    dispatch(fetchUser(accessToken));
   }
 
-  useEffect(() => {
-    const intervalCheck = setInterval(() => {
-      if (isLogin && !checkLogin()) { window.location.reload(); }
-    }, 10000);
+  // useEffect(() => {
+  //   const intervalCheck = setInterval(() => {
+  //     if (isLogin && !checkLogin()) { window.location.reload(); }
+  //   }, 10000);
 
-    return () => clearInterval(intervalCheck)
-  }, []);
+  //   return () => clearInterval(intervalCheck)
+  // }, []);
 
   return (
     <div className='App col-12 col-lg-10' style={{ margin: '0 auto' }}>

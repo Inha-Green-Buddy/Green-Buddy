@@ -6,10 +6,10 @@ const Server_IP = process.env.REACT_APP_Server_IP;
 
 export const fetchUser = createAsyncThunk(
     'userInfo/fetchUser',
-    async () => {
+    async (accessToken) => {
         const res = await axios.get(`${Server_IP}/users/me`, {
             headers: {
-                "Authorization": `Bearer ${Cookies.get("accessToken")}`
+                "Authorization": `Bearer ${accessToken})}`
             }
         });
         return res.data
