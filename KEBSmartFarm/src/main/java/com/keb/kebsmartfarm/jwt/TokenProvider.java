@@ -1,6 +1,7 @@
 package com.keb.kebsmartfarm.jwt;
 
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.TokenDto;
 import com.keb.kebsmartfarm.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
@@ -90,7 +91,7 @@ public class TokenProvider {
                 .filter(token -> token != null && token.getRefreshToken().equals(refreshToken))
                 .count();
         if (matches != 1) {
-            throw new RuntimeException("토큰이 유효하지 않습니다.");
+            throw new RuntimeException(Error.INVALID_TOKEN);
         }
     }
 
@@ -98,7 +99,7 @@ public class TokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new RuntimeException("권한정보가 없는 토큰입니다.");
+            throw new RuntimeException(Error.NOT_AUTHORIZED_TOKEN);
         }
         long memberId = Long.parseLong(claims.getSubject());
         String auth = claims.get(AUTHORITIES_KEY).toString();
@@ -129,7 +130,7 @@ public class TokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new RuntimeException(Error.NOT_AUTHORIZED_TOKEN);
         }
 
         Collection<? extends GrantedAuthority> authorities =
