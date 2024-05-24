@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,18 +72,13 @@ public class AuthController {
 
     @PostMapping("/find/password")
     public ResponseEntity<String> findUserPassword(@RequestBody UserRequestDto request) {
-        long befTime = System.currentTimeMillis(), aftTime;
         try {
             authService.findPasswordByIdAndEmail(request.getUserEmail(), request.getUserId());
-            MailDto mailDto = sendMailService.createMailAndChangePassword(request.getUserEmail(), request.getUserId());
+            MailDto mailDto = sendMailService.createTempPasswordEmail(request.getUserEmail(), request.getUserId());
             sendMailService.mailSend(mailDto);
         } catch (Exception e) {
-            aftTime = System.currentTimeMillis();
-            log.error("걸린 시간 : {}", aftTime - befTime);
-            return ResponseEntity.ok(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
         }
-        aftTime = System.currentTimeMillis();
-        log.info("걸린 시간 : {}", aftTime - befTime);
         return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
     }
 
@@ -94,5 +90,32 @@ public class AuthController {
         ResponseCookie cookie = createRefreshTokenCookie(tokens.getRefreshToken(), tokens.getExpiresIn());
         response.setHeader("set-cookie", cookie.toString());
         return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/verify/email")
+    public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> email) {
+        try{
+            MailDto mail = sendMailService.createVerificationMail(email.get("userEmail"));
+            sendMailService.mailSend(mail);
+            return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/verify/code")
+    public ResponseEntity<String> verifyCode(@RequestBody Map<String, String> info) {
+        String userEmail = info.getOrDefault("userEmail", "");
+        String code = info.getOrDefault("code", "");
+
+        if(!StringUtils.hasText(userEmail) || !StringUtils.hasText(code)) {
+            return ResponseEntity.badRequest().build();
+        }
+        try {
+            sendMailService.verifyEmail(code, userEmail);
+            return ResponseEntity.ok("인증이 완료되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

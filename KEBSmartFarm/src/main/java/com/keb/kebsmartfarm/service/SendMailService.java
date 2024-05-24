@@ -1,11 +1,15 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message;
 import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.MailDto;
 import com.keb.kebsmartfarm.entity.User;
+import com.keb.kebsmartfarm.entity.VerificationCode;
 import com.keb.kebsmartfarm.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import com.keb.kebsmartfarm.repository.VerificationCodeRepository;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -13,29 +17,54 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Component
 @Service
-@AllArgsConstructor
 @Slf4j
 public class SendMailService {
     private final UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
+    private final String FROM_ADDRESS;
 
-    private static final String FROM_ADDRESS = "cnxw4570123@gmail.com";
+    public SendMailService(
+            UserRepository userRepository, VerificationCodeRepository verificationCodeRepository,
+            JavaMailSender mailSender,
+            PasswordEncoder passwordEncoder, @Value("${spring.mail.username}") String FROM_ADDRESS) {
+        this.userRepository = userRepository;
+        this.verificationCodeRepository = verificationCodeRepository;
+        this.mailSender = mailSender;
+        this.passwordEncoder = passwordEncoder;
+        this.FROM_ADDRESS = FROM_ADDRESS;
+    }
 
+    public MailDto createVerificationMail(String userEmail) {
+        VerificationCode verificationCode = VerificationCode.fromUserEmail(userEmail);
+        verificationCodeRepository.save(verificationCode);
+        return MailDto.builder()
+                .address(userEmail)
+                .title(Message.VERIFICATION_EMAIL_TITLE)
+                .message(Message.VERIFICATION_EMAIL_CONTENT.formatted(verificationCode))
+                .build();
+    }
 
-    public MailDto createMailAndChangePassword(String userEmail, String userId) {
-        log.info("메일 보내기");
+    public void verifyEmail(String code, String userEmail) {
+        VerificationCode verificationCode = verificationCodeRepository.findById(userEmail)
+                .orElseThrow(() -> new RuntimeException(Error.INVALID_EMAIL));
+
+        if (!verificationCode.matches(code)) {
+            throw new RuntimeException(Error.INVALID_CODE);
+        }
+    }
+
+    public MailDto createTempPasswordEmail(String userEmail, String userId) {
         String randPw = getTempPassword();
-        MailDto dto = new MailDto();
-        dto.setAddress(userEmail);
-        dto.setTitle(userId + "님의 KEBSmartFarm 임시비밀번호 안내 이메일입니다.");
-        dto.setMessage("안녕하세요. KEBSmartFarm 임시비밀번호 안내 관련 이메일입니다.\n" +
-                "[" + userId + "]님의 임시비밀번호는 " + randPw + "입니다.");
         updatePassword(randPw, userEmail);
-        return dto;
+        return MailDto.builder()
+                .address(userEmail)
+                .title(Message.TEMP_PASSWORD_EMAIL_TITLE.formatted(userId))
+                .message(Message.TEMP_PASSWORD_EMAL_CONTENT.formatted(userEmail, randPw))
+                .build();
     }
 
     public String getTempPassword() {
@@ -45,9 +74,8 @@ public class SendMailService {
         };
         StringBuilder sb = new StringBuilder();
 
-        int idx = 0;
         for (int i = 0; i < 10; i++) {
-            idx = (int) (chars.length * Math.random());
+            int idx = (int) (chars.length * Math.random());
             sb.append(chars[idx]);
         }
         return sb.toString();
@@ -63,9 +91,10 @@ public class SendMailService {
 
     @Async
     public void mailSend(MailDto mailDto) {
+        log.info("메일 전송 시작");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailDto.getAddress());
-        message.setFrom(SendMailService.FROM_ADDRESS);
+        message.setFrom(FROM_ADDRESS);
         message.setSubject(mailDto.getTitle());
         message.setText(mailDto.getMessage());
 

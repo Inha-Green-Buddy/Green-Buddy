@@ -1,4 +1,4 @@
-package com.keb.kebsmartfarm;
+package com.keb.kebsmartfarm.service;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +12,6 @@ import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.repository.UserRepository;
-import com.keb.kebsmartfarm.service.AuthService;
 import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

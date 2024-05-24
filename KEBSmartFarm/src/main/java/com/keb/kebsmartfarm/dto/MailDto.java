@@ -3,8 +3,8 @@ package com.keb.kebsmartfarm.dto;
 import lombok.*;
 
 @Getter
-@NoArgsConstructor
-@Setter
+@AllArgsConstructor
+@Builder
 public class MailDto {
     private String address;
     private String title;
