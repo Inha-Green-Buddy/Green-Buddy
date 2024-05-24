@@ -31,7 +31,7 @@ export const useFetch = () => {
         } catch (err) {
             if (err.response.status === 403) {
                 await reissueAccessToken();
-                getReq({ url, data, token, cookies });
+                await getReq({ url, data, token, cookies });
             }
             console.log(err);
             setStatusCode(err.response.status);
@@ -41,7 +41,7 @@ export const useFetch = () => {
     const postReq = async ({url, data, token, cookies}) => {
         const header = { "Content-Type": "application/json" };
         if (token) {
-            header['Authorization'] = `Bearer ${accessToken})}`;
+            header['Authorization'] = `Bearer ${accessToken}`;
         }
         try {
             const response = await axios.post(`${Server_IP}/${url}`,
@@ -49,12 +49,13 @@ export const useFetch = () => {
                 { headers: header },
                 cookies ? { withCredentials: true } : {},
             );
+            console.log(response)
             setResponse(response.data);
             setStatusCode(response.status);
         } catch (err) {
             if (err.response.status === 403) {
-                reissueAccessToken();
-                postReq({ url, data, token, cookies });
+                await reissueAccessToken();
+                await postReq({ url, data, token, cookies });
             }
             setStatusCode(err.response.status);
             console.log(err);

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFetch } from '../hooks/useFetch';
 
 function SignUp() {
@@ -7,6 +7,7 @@ function SignUp() {
     const { getReq, postReq } = useFetch();
     const { statusCode: validateIdStatusCode, postReq: validateIdPost } = useFetch();
     const { statusCode: validateEmailStatusCode, postReq: validateEmailPost } = useFetch();
+    const { statusCode: sendAuthCodeStatusCode, postReq: sendAuthCodePost } = useFetch();
     const { statusCode: validateAuthCodeStatusCode, postReq: validateAuthCodePost } = useFetch();
     const [isAuthCode, setIsAuthCode] = useState(false);
     const [isEmailChecked, setIsEmailChecked] = useState(false);
@@ -73,57 +74,76 @@ function SignUp() {
         } else {
             alert('please try again')
         }
-    } 
+    }
     
     const checkId = async (e) => {
         e.preventDefault();
-        setIsIdChecked(true);
-        // await validateIdPost({
-        //     url: 'Auth/validateId',
-        //     data: { userId: form.userId },
-        //     token: false,
-        // })
-        // if (validateIdStatusCode === 200) {
-        //     setIsIdChecked(true);
-        // } else {
-        //     alert('already exists')
-        //     setForm({ ...form, userId: '' })
-        // }
+        await validateIdPost({
+            url: 'auth/validate/id',
+            data: { userId: form.userId },
+            token: false,
+        })
     }
+    
+    // checkId
+    useEffect(() => {
+        if (validateIdStatusCode) {
+            if (validateIdStatusCode === 200) {
+                setIsIdChecked(true);
+            } else {
+                alert('already exists')
+                setForm({ ...form, userId: '' })
+            }
+        }
+    }, [validateIdStatusCode])
     
     const checkEmail = async (e) => {
         e.preventDefault();
-        setIsAuthCode(true);
-        // setIsEmailChecked(true);
-        // await validateEmailPost({
-            //     url: 'Auth/validateEmail',
-            //     data: { userId: form.userEmail },
-            //     token: false,
-            // })
-            // if (validateEmailStatusCode === 200) {
-                //     setIsEmailChecked(true);
-                // } else {
-                    //     alert('already exists')
-                    //     setForm({ ...form, userEmail: '' })
-                    // }
-                }
+        await validateEmailPost({
+            url: 'auth/validate/email',
+            data: { userEmail: form.userEmail },
+            token: false,
+        })
+    }
+
+    // checkEmail
+    useEffect(() => {
+        if (validateEmailStatusCode) {
+            if (validateEmailStatusCode === 200) {
+                sendAuthCodePost({
+                    url: 'auth/verify/email',
+                    data: { userEmail: form.userEmail },
+                    token: false,
+                })
+                setIsAuthCode(true);
+                alert('Please check your email and enter the verification code')
+            } else {
+                alert('already exists')
+                setForm({ ...form, userEmail: '' })
+            }
+        }
+    }, [validateEmailStatusCode])
                 
     const checkAuthCode = async (e) => {
         e.preventDefault();
-        setIsAuthCode(false);
-        setIsEmailChecked(true);
-        // await validateAuthCodePost({
-        //     url: 'Auth/validateEmail',
-        //     data: { userId: form.userEmail },
-        //     token: false,
-        // })
-        // if (validateAuthCodeStatusCode === 200) {
-        //     setIsAuthCode(false);
-        // } else {
-        //     alert('already exists')
-        //     setForm({ ...form, userEmail: '' })
-        // }
+        await validateAuthCodePost({
+            url: 'auth/verify/code',
+            data: { userEmail: form.userEmail, code: form.authCode },
+            token: false,
+        })
     }
+
+    // authcode
+    useEffect(() => {
+        if (validateAuthCodeStatusCode) {
+            if (validateAuthCodeStatusCode === 200) {
+                setIsAuthCode(false);
+                setIsEmailChecked(true);
+            } else {
+                alert('please check auth code')
+            }
+        }
+    }, [validateAuthCodeStatusCode])
 
     return (
         <div>
