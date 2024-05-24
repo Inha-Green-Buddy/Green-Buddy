@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.MailDto;
+import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.entity.VerificationCode;
 import com.keb.kebsmartfarm.repository.UserRepository;
 import com.keb.kebsmartfarm.repository.VerificationCodeRepository;
@@ -17,28 +18,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class})
+@MockBean(JavaMailSender.class)
 class SendMailServiceTest {
     @InjectMocks
     private SendMailService sendMailService;
     @Mock
     private VerificationCodeRepository verificationCodeRepository;
 
-    PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private JavaMailSender mailSender;
 
     @Test
     void 인증_코드_비정상_확인() {
         // given
         String userEmail = "test@test.com", code = "asdf", wrong = "bcdf";
-        when(verificationCodeRepository.findById(userEmail)).thenReturn(
+        given(verificationCodeRepository.findById(userEmail)).willReturn(
                 Optional.of(new VerificationCode("test@test.com", wrong)), // 코드가 일치하지 않음
                 Optional.empty() // 해당 이메일을 찾을 수 없음
         );
@@ -59,9 +60,9 @@ class SendMailServiceTest {
     void 인증_코드_정상_확인() {
         // given
         String userEmail = "test@test.com", code = "asdf";
-        // when
-        when(verificationCodeRepository.findById(userEmail)).thenReturn(
+        given(verificationCodeRepository.findById(userEmail)).willReturn(
                 Optional.of(new VerificationCode(userEmail, code)));
+
         // then
         assertDoesNotThrow(() -> sendMailService.verifyEmail(code, userEmail));
     }
@@ -86,5 +87,32 @@ class SendMailServiceTest {
         }
     }
 
+    @Test
+    void 비밀번호_찾기_이메일_X() {
+        // given
+        String temp = "123456", userEmail = "test@test.com";
+        given(userRepository.findByUserEmail(any(String.class))).willReturn(Optional.empty());
+
+        // then
+        assertThatThrownBy(() -> sendMailService.updatePassword(temp, userEmail))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage(Error.USER_DOES_NOT_MACTH.formatted(userEmail));
+    }
+
+    @Test
+    void 비밀번호_찾기_이메일_O() {
+        // given
+        given(passwordEncoder.encode(any(String.class))).willReturn("{bcrypt}$2a$qq");
+        String temp = "123456", userEmail = "test@test.com";
+        User user = User.builder()
+                .userPassword(passwordEncoder.encode(temp))
+                .build();
+        given(userRepository.findByUserEmail(any(String.class))).willReturn(Optional.of(user));
+        given(userRepository.save(any(User.class))).willReturn(user);
+
+
+        // then
+        assertDoesNotThrow(() -> sendMailService.updatePassword(temp, userEmail));
+    }
 
 }

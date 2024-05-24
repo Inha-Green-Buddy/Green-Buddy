@@ -60,13 +60,12 @@ public class SendMailService {
     }
 
     public MailDto createTempPasswordEmail(String userEmail, String userId) {
-        log.info("메일 보내기");
         String randPw = getTempPassword();
         updatePassword(randPw, userEmail);
         return MailDto.builder()
                 .address(userEmail)
                 .title(Message.TEMP_PASSWORD_EMAIL_TITLE.formatted(userId))
-                .message(Message.TEMP_PASSWORD_EMAL_CONTENT.formatted(randPw, userEmail))
+                .message(Message.TEMP_PASSWORD_EMAL_CONTENT.formatted(userEmail, randPw))
                 .build();
     }
 
@@ -77,9 +76,8 @@ public class SendMailService {
         };
         StringBuilder sb = new StringBuilder();
 
-        int idx = 0;
         for (int i = 0; i < 10; i++) {
-            idx = (int) (chars.length * Math.random());
+            int idx = (int) (chars.length * Math.random());
             sb.append(chars[idx]);
         }
         return sb.toString();
@@ -95,6 +93,7 @@ public class SendMailService {
 
     @Async
     public void mailSend(MailDto mailDto) {
+        log.info("메일 전송 시작");
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailDto.getAddress());
         message.setFrom(FROM_ADDRESS);
