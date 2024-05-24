@@ -39,14 +39,12 @@ public class SendMailService {
     }
 
     public MailDto createVerificationMail(String userEmail) {
-        String randCode = UUID.randomUUID().toString().substring(0, 6);
-        VerificationCode verificationCode = new VerificationCode(userEmail, randCode);
+        VerificationCode verificationCode = VerificationCode.fromUserEmail(userEmail);
         verificationCodeRepository.save(verificationCode);
-
         return MailDto.builder()
                 .address(userEmail)
                 .title(Message.VERIFICATION_EMAIL_TITLE)
-                .message(Message.VERIFICATION_EMAIL_CONTENT.formatted(randCode))
+                .message(Message.VERIFICATION_EMAIL_CONTENT.formatted(verificationCode))
                 .build();
     }
 

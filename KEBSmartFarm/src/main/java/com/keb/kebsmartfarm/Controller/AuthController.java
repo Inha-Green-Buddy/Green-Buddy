@@ -72,18 +72,13 @@ public class AuthController {
 
     @PostMapping("/find/password")
     public ResponseEntity<String> findUserPassword(@RequestBody UserRequestDto request) {
-        long befTime = System.currentTimeMillis(), aftTime;
         try {
             authService.findPasswordByIdAndEmail(request.getUserEmail(), request.getUserId());
             MailDto mailDto = sendMailService.createTempPasswordEmail(request.getUserEmail(), request.getUserId());
             sendMailService.mailSend(mailDto);
         } catch (Exception e) {
-            aftTime = System.currentTimeMillis();
-            log.error("걸린 시간 : {}", aftTime - befTime);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Error.ID_OR_PASSWORD_DOES_NOT_MATCH);
         }
-        aftTime = System.currentTimeMillis();
-        log.info("걸린 시간 : {}", aftTime - befTime);
         return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
     }
 
