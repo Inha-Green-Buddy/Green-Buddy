@@ -1,7 +1,6 @@
 package com.keb.kebsmartfarm.Controller;
 
 import com.keb.kebsmartfarm.constant.Message.Error;
-import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.ReleasedKit;
 import com.keb.kebsmartfarm.service.ArduinoKitService;
 import com.keb.kebsmartfarm.service.ReleasedKitService;
@@ -27,7 +26,7 @@ public class SensorController {
     }
 
     @GetMapping("/{kitNo}/plant")
-    public ResponseEntity<Boolean> hasPlant(@PathVariable long kitNo){
-        return ResponseEntity.ok(arduinoKitService.findKitByKitNo(kitNo).getActivePlant().isPresent());
+    public ResponseEntity<Boolean> isGrowing(@PathVariable long kitNo){
+        return ResponseEntity.ok(arduinoKitService.findKitByKitNo(kitNo).hasPlant());
     }
 }

@@ -29,11 +29,13 @@ public class ArduinoResponseDto {
 
     public static ArduinoResponseDto of(ArduinoKit arduinoKit) {
         PlantResponseDto responseDto = null;
-        Optional<Plant> activePlant = arduinoKit.getActivePlant();
-        if(activePlant.isPresent()) {
-            responseDto = PlantResponseDto.of(activePlant.get());
-            responseDto.setProfileImg(PictureUtils.getUrl(Path.of(activePlant.get().getStoredFilePath())));
-        };
+
+        if (arduinoKit.hasPlant()) {
+            Plant activePlant = arduinoKit.getActivePlant();
+
+            responseDto = PlantResponseDto.of(activePlant);
+            responseDto.setProfileImg(PictureUtils.getUrl(Path.of(activePlant.getStoredFilePath())));
+        }
 
         return ArduinoResponseDto.builder()
                 .kitNo(arduinoKit.getKitNo())
@@ -45,6 +47,8 @@ public class ArduinoResponseDto {
     }
 
     public static List<ArduinoResponseDto> ofList(List<ArduinoKit> arduinoKitList) {
-        return arduinoKitList.stream().map(ArduinoResponseDto::of).collect(Collectors.toList());
+        return arduinoKitList.stream()
+                .map(ArduinoResponseDto::of)
+                .collect(Collectors.toList());
     }
 }

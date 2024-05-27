@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Entity
@@ -44,8 +43,8 @@ public class Plant {
     @NotEmpty
     private String storedFilePath;
 
-    @JsonIgnore
-    @OneToOne(mappedBy = "plant", cascade = CascadeType.ALL)
-    private PreviousPlant previousPlant;
-
+    public void endGrowth() {
+        status = PlantStatus.GROWN;
+        plantHarvestDate = LocalDateTime.now();
+    }
 }
