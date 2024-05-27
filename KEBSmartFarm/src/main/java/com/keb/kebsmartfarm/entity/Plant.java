@@ -26,6 +26,10 @@ public class Plant {
     private String plantNickName;
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime plantRegDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime plantHarvestDate;
+    @Enumerated(EnumType.STRING)
+    private PlantStatus status;
 
     @ManyToOne
     @JoinColumn(name = "plantKitNo")
@@ -43,4 +47,5 @@ public class Plant {
     @JsonIgnore
     @OneToOne(mappedBy = "plant", cascade = CascadeType.ALL)
     private PreviousPlant previousPlant;
+
 }

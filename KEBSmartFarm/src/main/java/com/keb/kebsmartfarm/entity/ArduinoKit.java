@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,8 +42,8 @@ public class ArduinoKit {
     private Long userSeqNum;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "arduinoKit", cascade = CascadeType.ALL)
-    private List<Plant> PlantList;
+    @Embedded
+    private Plants plantList;
 
     @OneToMany(mappedBy = "kit", cascade = CascadeType.ALL)
     private List<SensorData> sensorDataList;
@@ -61,9 +60,7 @@ public class ArduinoKit {
      * @return Optional<plant> 현재 키우고 있는 식물
      */
     public Optional<Plant> getActivePlant() {
-        return PlantList.stream()
-                .filter(candidate -> candidate.getPreviousPlant() == null)
-                .findFirst();
+        return plantList.getActivePlant();
     }
 
     public void setReleasedKit(ReleasedKit releasedKit) {
