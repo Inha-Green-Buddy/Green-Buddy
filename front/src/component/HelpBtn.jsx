@@ -18,7 +18,6 @@ function HelpBtn({Content, pageName}) {
               }} type="button" className="btn" data-bs-toggle="modal" data-bs-target={`#helpBtn${pageName}`} data-bs-whatever="@getbootstrap"><GrHelp color='#FFFFFF' style={{ color: '#FFFFFF' }} /></button>
               <div className="modal fade" id={`helpBtn${pageName}`} tabindex="-1" aria-labelledby="findModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
-                    {/* <div className="modal-content" style={{ height: '500px' }}> */}
                     <div className="modal-content">
                         <div className="modal-header">
                             <h1 className="modal-title fs-5" id="exampleModalLabel">{pageName} help</h1>

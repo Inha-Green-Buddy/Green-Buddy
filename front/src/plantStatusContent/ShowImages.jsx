@@ -29,7 +29,6 @@ function ShowImages({ plantNum }) {
 
     return (
         <div>
-            {/* <div id="carouselExampleDark" className="carousel carousel-dark slide"> */}
             <div id={`carouselExampleDark${plantNum}`} className="carousel slide">
                 <div className="carousel-indicators" style={{ top: '20px' }}  >
                     {images.map((image, index) => (

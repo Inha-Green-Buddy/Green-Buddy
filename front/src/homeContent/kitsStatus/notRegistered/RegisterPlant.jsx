@@ -44,7 +44,6 @@ function RegisterPlant({kitNo}) {
 
     const handlePlantNaming = (e) => {
         setForm({ ...form, plantName: e.currentTarget.querySelector('#plantNameContent').textContent });
-        console.log(form.plantName)
         setIsShowPossibility(false);
     }
 
@@ -80,7 +79,6 @@ function RegisterPlant({kitNo}) {
 
     return (
         <div>
-            {/* <button type="button" style={{ color: 'white', backgroundColor: '#73BD72', paddingLeft: '7px', paddingRight: '7px' }} className="btn" data-bs-toggle="modal" data-bs-target={`#registerPlant${kitNo}Modal`} data-bs-whatever="@getbootstrap">Register Plant</button> */}
             <button type="button" style={{ color: 'white', backgroundColor: '#7E8287', paddingLeft: '7px', paddingRight: '7px' }} className="btn" data-bs-toggle="modal" data-bs-target={`#registerPlant${kitNo}Modal`} data-bs-whatever="@getbootstrap">Register Plant</button>
             <div className="modal fade" id={`registerPlant${kitNo}Modal`} tabindex="-1" aria-labelledby="registerPlantLabel" aria-hidden="true">
                 <div className="modal-dialog">
@@ -106,7 +104,6 @@ function RegisterPlant({kitNo}) {
                                         <div style={{ marginTop: '10px', fontSize: '15px' }}>
                                             Choose your plant
                                             {Object.entries(possibilityObject).map((value, index) => {
-                                                console.log(value)
                                                 return (
                                                     <div key={index}>
                                                         <button className='possibilityBtn' style={{ backgroundColor: '#9CAFB7' , borderRadius: '10px', border: 'none', margin: '5px 5px 5px 0px' }} onClick={handlePlantNaming}>
