@@ -21,7 +21,7 @@ export default function LoginPage() {
     const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
     const focusRef = useRef();
     const navigate = useNavigate();
-    const { statusCode: loginStatusCode, postReq: loginPost, response: loginResponse } = useFetch();
+    const { statusCode: loginStatusCode, setStatusCode: setLoginStatusCode, postReq: loginPost, response: loginResponse } = useFetch();
     const { accessToken, setAccessToken } = useAccessToken();
     const { isLogin, setIsLogin } = useIsLogin();
 
@@ -53,18 +53,21 @@ export default function LoginPage() {
             data: { userId: userId, userPassword: password },
             token: false,
         })
+        console.log(loginResponse)
+        console.log(loginStatusCode)
     }
 
     useEffect(() => {
-        if (loginResponse) {
+        if (loginStatusCode) {
             if (loginStatusCode === 200) {
                 setAccessToken(loginResponse.accessToken)
                 navigate('/')
             } else {
                 alert("Please check your Id and Password.");
+                setLoginStatusCode('');
             }
         }
-    }, [loginResponse])
+    }, [loginStatusCode])
 
     return (
         <>

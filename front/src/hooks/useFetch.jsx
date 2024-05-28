@@ -62,5 +62,5 @@ export const useFetch = () => {
         }
     }
 
-    return { statusCode, response, getReq, postReq };
+    return { statusCode, response, getReq, postReq, setStatusCode };
 }

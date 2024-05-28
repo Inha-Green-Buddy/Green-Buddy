@@ -68,13 +68,15 @@ function SignUp() {
             data:{ userName: userName, userId: userId, userPassword: userPassword, userEmail: userEmail, userPhoneNum: userPhoneNum, userNickname: userNickname },
             token: false,
         })
-
+    }
+    
+    useEffect(() => {
         if (signUpStatusCode === 200) {
             alert('Complete')
         } else {
             alert('please try again')
         }
-    }
+    }, [signUpStatusCode])
     
     const checkId = async (e) => {
         e.preventDefault();
