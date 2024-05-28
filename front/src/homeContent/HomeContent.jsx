@@ -26,9 +26,6 @@ function HomeContent() {
 
     return(
         <div>
-            <button style={{ width:'100px', height:'100px', backgroundColor:'blue' }} onClick={testRequest}>
-                버튼
-            </button>
             <div style={{ display:'flex', alignItems: 'center' }}>
                 <div className='col-11 col-lg-10' style={{ justifyContent:'right', margin: '0 auto' }}>
                     <AddDevice></AddDevice>

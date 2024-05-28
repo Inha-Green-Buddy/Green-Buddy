@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState } from "react";
-import Cookies from "js-cookie";
 import { useAccessToken } from "../contexts/AccessTokenContext";
 
 export const useFetch = () => {

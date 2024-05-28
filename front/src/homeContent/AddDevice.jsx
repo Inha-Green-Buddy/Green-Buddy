@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import axios from 'axios'
 import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { fetchUser } from '../store/userInfoSlice';
 import Cookies from 'js-cookie';
+import { useFetch } from '../hooks/useFetch';
 
 function AddDevice() {
     const Server_IP = process.env.REACT_APP_Server_IP;
@@ -14,6 +14,9 @@ function AddDevice() {
     const [deviceName, setDeviceName] = useState("");
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+
+    const { statusCode: addDeviceStatusCode, postReq: addDevicePost } = useFetch();
+    const { statusCode: checkNumberStatusCode, setStatusCode: setCheckNumberStatusCode, postReq: checkNumberPost, response: checkNumberResponse } = useFetch();
 
     useEffect(() => {
         if (isInputFocused === false && deviceNumber) {
@@ -30,54 +33,78 @@ function AddDevice() {
     };
 
     const checkSerialNumber = async (deviceNumber) => {
-        await axios.post(`${Server_IP}/kit/validate`, { serialNum: deviceNumber },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${Cookies.get("accessToken")}`
-                },
-            })
-            .then((res) => {
-                if (res.data) {
+        await checkNumberPost({
+            url: 'kit/validate',
+            data: { serialNum: deviceNumber },
+            token: true,
+        })
+    };
+
+    useEffect(() => {
+        if (checkNumberStatusCode) {
+            if (checkNumberStatusCode === 200) {
+                if (checkNumberResponse) {
                     alert("This kit is already registered")
                     setDeviceNumber('')
                 } else {
                     alert("This Kit is possible to register")
                     setIsChecked(true);
                 }
-            })
-            .catch((error) => {
+            } else {
                 alert("This serial Number is invalid");
-                setDeviceNumber('')
-            })
-    };
+                setDeviceNumber('');
+                setCheckNumberStatusCode('');
+            }
+        }
+    }, [checkNumberStatusCode])
 
     const handleDeviceNumber = () => {
         const accessToken = Cookies.get('accessToken');
         registerDeviceNumber(deviceNumber, deviceName, accessToken)
         dispatch(fetchUser());
-        window.location.reload();
     }
 
     const registerDeviceNumber = async (deviceNumber, deviceName , accessToken) => {
-        await axios.post(`${Server_IP}/kit`, { serialNum: deviceNumber, deviceName: deviceName },
-        {
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-        })
-        .then((res) => {
-            if (res.status === 204) {
-                alert("중복");
-            } else {
-                alert("Success")
-            }
-        })
-        .catch((error) => {
-            alert("Server Error");
+        await addDevicePost({
+            url: 'kit',
+            data: { serialNum: deviceNumber, deviceName: deviceName },
+            token: true,
         })
     }
+
+    useEffect(() => {
+        if (addDeviceStatusCode) {
+            if (addDeviceStatusCode === 200) {
+                alert('Success')
+            }
+            if (addDeviceStatusCode === 204) {
+                alert('Duplicated')
+            }
+            if (addDeviceStatusCode === 200) {
+                alert('Server Error')
+            }
+        }
+    }, [addDeviceStatusCode])
+
+    // const registerDeviceNumber = async (deviceNumber, deviceName , accessToken) => {
+    //     await axios.post(`${Server_IP}/kit`, { serialNum: deviceNumber, deviceName: deviceName },
+    //     {
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "Authorization": `Bearer ${accessToken}`
+    //         },
+    //     })
+    //     .then((res) => {
+    //         if (res.status === 204) {
+    //             alert("중복");
+    //         } else {
+    //             alert("Success")
+    //         }
+    //     })
+    //     .catch((error) => {
+    //         alert("Server Error");
+    //     })
+    // }
 
 
     return (

@@ -1,12 +1,14 @@
 import { createAsyncThunk, createSlice, thunkAPI } from '@reduxjs/toolkit'
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { useAccessToken } from '../contexts/AccessTokenContext';
 
 const Server_IP = process.env.REACT_APP_Server_IP;
 
 export const fetchUser = createAsyncThunk(
     'userInfo/fetchUser',
-    async (accessToken) => {
+    async () => {
+        const { accessToken } = useAccessToken();
         const res = await axios.get(`${Server_IP}/users/me`, {
             headers: {
                 "Authorization": `Bearer ${accessToken})}`
