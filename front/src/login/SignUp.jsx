@@ -71,10 +71,12 @@ function SignUp() {
     }
     
     useEffect(() => {
-        if (signUpStatusCode === 200) {
-            alert('Complete')
-        } else {
-            alert('please try again')
+        if (signUpStatusCode) {
+            if (signUpStatusCode === 200) {
+                alert('Complete')
+            } else {
+                alert('please try again')
+            }
         }
     }, [signUpStatusCode])
     
