@@ -61,5 +61,29 @@ export const useFetch = () => {
         }
     }
 
-    return { statusCode, response, getReq, postReq, setStatusCode };
+    const deleteReq = async ({url, data, token, cookies}) => {
+        const header = { "Content-Type": "application/json" };
+        if (token) {
+            header['Authorization'] = `Bearer ${accessToken}`;
+        }
+        try {
+            const response = await axios.delete(`${Server_IP}/${url}`,
+                data,
+                { headers: header },
+                cookies ? { withCredentials: true } : {},
+            );
+            console.log(response)
+            setResponse(response.data);
+            setStatusCode(response.status);
+        } catch (err) {
+            if (err.response.status === 403) {
+                await reissueAccessToken();
+                await postReq({ url, data, token, cookies });
+            }
+            setStatusCode(err.response.status);
+            console.log(err);
+        }
+    }
+
+    return { statusCode, response, getReq, postReq, deleteReq, setStatusCode };
 }

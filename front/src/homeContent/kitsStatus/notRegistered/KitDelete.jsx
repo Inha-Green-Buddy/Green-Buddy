@@ -5,6 +5,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { fetchUser } from '../../../store/userInfoSlice';
+import { useFetch } from '../../../hooks/useFetch';
 
 function KitDelete({kitNo}) {
 
@@ -15,27 +16,29 @@ function KitDelete({kitNo}) {
 
   const [text, setText] = useState('');
   const [isDisabled, setIsDisabled] = useState(true);
+  const { statusCode: deleteKitStatusCode, deleteReq: deleteKitDelete } = useFetch();
 
   useEffect(() => {
     text == 'I want to delete this kit' ? setIsDisabled(false) : setIsDisabled(true)
   }, [text])
 
   const kitDelete = async () => {
-    alert(kitNo);
-    await axios.delete(`${Server_IP}/users/kit/${kitNo}`,
-      {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`
-        },
-      })
-      .then((res) => {
+    await deleteKitDelete({
+      url: `kit/${kitNo}`,
+      token: true,
+    })
+  }
+
+  useEffect(() => {
+    if (deleteKitStatusCode) {
+      if (deleteKitStatusCode === 200) {
         alert("Kit is Deleted")
         dispatch(fetchUser());
-      })
-      .catch((error) => {
+      } else {
         alert("Server error");
-      })
-  }
+      }
+    }
+  }, [deleteKitStatusCode])
 
   return (
     <div>
