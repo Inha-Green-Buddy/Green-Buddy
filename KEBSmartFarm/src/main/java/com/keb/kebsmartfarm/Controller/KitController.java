@@ -1,6 +1,7 @@
 package com.keb.kebsmartfarm.Controller;
 
 import com.keb.kebsmartfarm.dto.*;
+import com.keb.kebsmartfarm.entity.PlantStatus;
 import com.keb.kebsmartfarm.service.KitAndPlantManageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -49,7 +50,7 @@ public class KitController {
     }
 
     @PostMapping("/{kitNo}/growth")
-    public ResponseEntity<PreviousPlantDto> moveToPreviousPlant(@PathVariable long kitNo) {
+    public ResponseEntity<PlantResponseDto> moveToPreviousPlant(@PathVariable long kitNo) {
         return ResponseEntity.ok(kitAndPlantManageService.completingPlantGrowth(kitNo));
     }
 
@@ -60,7 +61,7 @@ public class KitController {
     }
 
     @GetMapping("/plant/list")
-    public ResponseEntity<Map<String, Object>> getUserPlantList() {
+    public ResponseEntity<Map<PlantStatus, List<PlantResponseDto>>> getUserPlantList() {
         return ResponseEntity.ok(kitAndPlantManageService.gettingListOfUsersPlant());
     }
 

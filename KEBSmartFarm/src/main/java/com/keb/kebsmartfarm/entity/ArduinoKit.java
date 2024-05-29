@@ -1,16 +1,18 @@
 package com.keb.kebsmartfarm.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.keb.kebsmartfarm.dto.PlantResponseDto;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Builder
 @Entity
@@ -43,27 +45,27 @@ public class ArduinoKit {
     private Long userSeqNum;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "arduinoKit", cascade = CascadeType.ALL)
-    private List<Plant> PlantList;
+    @Default
+    @Embedded
+    private Plants plants = new Plants();
 
     @OneToMany(mappedBy = "kit", cascade = CascadeType.ALL)
-    private List<SensorData> sensorDataList;
-    @Transient
-    // activePlant
-    private Plant plant;
+    private List<SensorData> sensorDataList = new ArrayList<>();
 
-    /**
-     * 키트에 현재 키우고 있는 식물을 반환하는 함수
-     * 반환값 사용 시 식물 등록
-     * 성장완료 메소드의 경우 -> ifPresent로 오류 처리
-     * 삭제 메소드에서는 -> orElseThrow로 오류 처리
-     *
-     * @return Optional<plant> 현재 키우고 있는 식물
-     */
-    public Optional<Plant> getActivePlant() {
-        return PlantList.stream()
-                .filter(candidate -> candidate.getPreviousPlant() == null)
-                .findFirst();
+    public Plant getActivePlant() {
+        return plants.getGrowingPlant();
+    }
+
+    public Map<PlantStatus, List<PlantResponseDto>> getPlantsByStatus() {
+        return plants.separateByStatus();
+    }
+
+    public boolean hasPlant() {
+        return plants.hasGrowingPlant();
+    }
+
+    public void deletePlant(Plant plant) {
+        plants.removePlant(plant);
     }
 
     public void setReleasedKit(ReleasedKit releasedKit) {
