@@ -1,8 +1,5 @@
 package com.keb.kebsmartfarm.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.keb.kebsmartfarm.entity.ArduinoKit;
-import com.keb.kebsmartfarm.entity.PreviousPlant;
 import com.keb.kebsmartfarm.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

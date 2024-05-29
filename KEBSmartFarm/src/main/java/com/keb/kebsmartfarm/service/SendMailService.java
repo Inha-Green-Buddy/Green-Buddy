@@ -7,14 +7,12 @@ import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.entity.VerificationCode;
 import com.keb.kebsmartfarm.repository.UserRepository;
 import com.keb.kebsmartfarm.repository.VerificationCodeRepository;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service

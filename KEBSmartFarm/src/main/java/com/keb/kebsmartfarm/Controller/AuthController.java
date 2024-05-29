@@ -8,8 +8,6 @@ import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
-import com.keb.kebsmartfarm.util.SecurityUtil;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

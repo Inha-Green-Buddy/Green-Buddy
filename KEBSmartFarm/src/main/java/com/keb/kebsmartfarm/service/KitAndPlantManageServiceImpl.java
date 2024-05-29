@@ -1,8 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
-import com.keb.kebsmartfarm.entity.Plant;
 import com.keb.kebsmartfarm.entity.PlantStatus;
-import com.keb.kebsmartfarm.entity.Plants;
 import com.keb.kebsmartfarm.util.JsonUtil;
 import com.keb.kebsmartfarm.config.MqttConfig;
 import com.keb.kebsmartfarm.util.PictureUtils;
@@ -11,10 +9,7 @@ import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.*;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.ReleasedKit;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
