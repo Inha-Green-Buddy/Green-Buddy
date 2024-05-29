@@ -8,6 +8,8 @@ import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.service.AuthService;
 import com.keb.kebsmartfarm.service.SendMailService;
+import com.keb.kebsmartfarm.util.SecurityUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -94,7 +97,7 @@ public class AuthController {
 
     @PostMapping("/verify/email")
     public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> email) {
-        try{
+        try {
             MailDto mail = sendMailService.createVerificationMail(email.get("userEmail"));
             sendMailService.mailSend(mail);
             return ResponseEntity.ok(Message.SENT_EMAIL_TO_USER);
@@ -108,7 +111,7 @@ public class AuthController {
         String userEmail = info.getOrDefault("userEmail", "");
         String code = info.getOrDefault("code", "");
 
-        if(!StringUtils.hasText(userEmail) || !StringUtils.hasText(code)) {
+        if (!StringUtils.hasText(userEmail) || !StringUtils.hasText(code)) {
             return ResponseEntity.badRequest().build();
         }
         try {
@@ -117,5 +120,21 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PutMapping("/logout")
+    public ResponseEntity<Void> logout(@CookieValue("refresh_token") String refreshToken,
+                                       HttpServletResponse response) {
+        ResponseCookie expToken =
+                ResponseCookie.from("refresh_token", refreshToken)
+                        .path("/")
+                        .sameSite("none")
+                        .maxAge(0)
+                        .secure(true)
+                        .httpOnly(true)
+                        .build();
+        response.setHeader("Set-Cookie", expToken.toString());
+        authService.logout();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -10,6 +10,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
@@ -103,7 +104,6 @@ public class TokenProvider {
         }
         long memberId = Long.parseLong(claims.getSubject());
         String auth = claims.get(AUTHORITIES_KEY).toString();
-        log.info("auth = {}, memberId = {}", auth, memberId);
         validateRefreshToken(refreshToken, memberId);
 
         RefreshToken newRefreshToken = generateRefreshToken(memberId);
@@ -166,5 +166,10 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public void deleteUserRefreshToken(long userId) {
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByMemberId(userId);
+        refreshTokenRepository.deleteAll(tokens);
     }
 }

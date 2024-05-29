@@ -8,6 +8,7 @@ import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.repository.RefreshTokenRepository;
 import com.keb.kebsmartfarm.repository.UserRepository;
+import com.keb.kebsmartfarm.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,5 +79,10 @@ public class AuthService {
             ret.put("userId", user.getUserId());
         }
         return ret;
+    }
+
+    public void logout() {
+        long userId = SecurityUtil.getCurrentUserId();
+        tokenProvider.deleteUserRefreshToken(userId);
     }
 }
