@@ -5,7 +5,6 @@ import com.keb.kebsmartfarm.entity.SensorData;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @NoArgsConstructor

@@ -1,6 +1,7 @@
 package com.keb.kebsmartfarm.service;
 
-import com.keb.kebsmartfarm.config.PictureUtils;
+import com.keb.kebsmartfarm.util.PictureUtils;
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.PlantPictureRequestDto;
 import com.keb.kebsmartfarm.dto.PlantPictureResponseDto;
 import com.keb.kebsmartfarm.repository.PlantPictureRepository;
@@ -19,7 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.keb.kebsmartfarm.config.PictureUtils.rootLocation;
+import static com.keb.kebsmartfarm.util.PictureUtils.rootLocation;
 
 @Slf4j
 @Service
@@ -52,7 +53,7 @@ public class PlantPictureServiceImpl implements PlantPictureService {
             file.transferTo(destinationFile);
             plantPictureRepository.save(plantPictureDto.toPlantPicture(destinationFile));
         } catch (IOException e) {
-            throw new IllegalStateException("파일 저장에 실패했습니다.", e);
+            throw new IllegalStateException(Error.FAILED_TO_SAVE_FILE, e);
         }
     }
 
@@ -77,10 +78,10 @@ public class PlantPictureServiceImpl implements PlantPictureService {
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
-                throw new RuntimeException("파일을 읽을 수 없습니다 : " + filename);
+                throw new RuntimeException(String.format(Error.CAN_NOT_READ_FILE ,filename));
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("파일을 읽을 수 없습니다 : " + filename + e);
+            throw new RuntimeException(String.format(Error.CAN_NOT_READ_FILE, (filename + e)));
         }
     }
 }

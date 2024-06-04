@@ -2,6 +2,7 @@ package com.keb.kebsmartfarm.dto;
 
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.Plant;
+import com.keb.kebsmartfarm.entity.PlantStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,9 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @Getter
@@ -33,6 +32,7 @@ public class PlantRequestDto {
                 .plantRegDate(LocalDateTime.now())
                 .orgFileName(file.getOriginalFilename())
                 .storedFilePath(storedPath.toString())
+                .status(PlantStatus.GROWING)
                 .build();
     }
 

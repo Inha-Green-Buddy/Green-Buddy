@@ -31,28 +31,41 @@ dependencies {
     // for local, dev H2DB Connection
     runtimeOnly 'com.h2database:h2'
     // spring security
-    implementation 'org.springframework.boot:spring-boot-starter-security:2.7.5'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // Swagger-ui
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Spring Integration MQTTs
     implementation 'org.springframework.boot:spring-boot-starter-integration'
-    implementation 'org.springframework.integration:spring-integration-mqtt:6.1.2'
+    implementation 'org.springframework.integration:spring-integration-mqtt'
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 }
 
 tasks.named('test') {
+
     useJUnitPlatform()
+}
+tasks {
+    processResources {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}
+
+bootRun{
+    String activeProfile = System.properties['spring.profiles.active']
+    systemProperty "spring.profiles.active", activeProfile
 }

@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.ArduinoRequestDto;
 import com.keb.kebsmartfarm.dto.ArduinoResponseDto;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
@@ -19,7 +20,7 @@ public class ArduinoKitService {
     @Transactional
     public ArduinoResponseDto createArduinoKit(ArduinoRequestDto requestDto, ReleasedKit releasedKit) {
         if(isKitRegistered(requestDto.getSerialNum())){
-            throw new IllegalStateException("이미 등록된 키트입니다.");
+            throw new IllegalStateException(Error.ALREADY_REGISTERD_KIT);
         }else{
             ArduinoKit arduinoKit = requestDto.toArduinoKit();
             arduinoKit.setReleasedKit(releasedKit);
@@ -55,7 +56,7 @@ public class ArduinoKitService {
      */
     public ArduinoKit findKitByKitNo(long kitNo) {
         return arduinoKitRepository.findById(kitNo)
-                .orElseThrow(() -> new IllegalStateException("등록되지 않은 키트입니다."));
+                .orElseThrow(() -> new IllegalStateException(Error.KIT_NOT_REGISTERED));
     }
 
     public List<ArduinoKit> getMyArduinoKits(long userSeqNum) {

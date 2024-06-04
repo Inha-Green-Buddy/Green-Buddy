@@ -11,14 +11,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Component
 @EnableWebSecurity
 @Configuration
 @EnableMethodSecurity
@@ -29,7 +27,7 @@ public class WebSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -50,7 +48,8 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/sensor/**"),
                                 new AntPathRequestMatcher("/v3/**"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
-                                new AntPathRequestMatcher("/kit/files/**")
+                                new AntPathRequestMatcher("/kit/files/**"),
+                                new AntPathRequestMatcher("/error") // 기본 에러 처리 필요
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
