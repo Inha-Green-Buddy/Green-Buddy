@@ -9,18 +9,20 @@
 
 ## 🖥️ 프로젝트 소개
 
-### 사용자의 환경에 맞춰 식물의 성장을 보조하는 플랫폼
+### 반려식물 성장 모니터링 플랫폼
 
 ### ✔ 주요 기능
 
-- 키트에 탑재된 센서를 통해 해당 키트에 등록된 식물에게 필요한 정보들을 주변 환경을 고려하여 제공
-- 원격에서 센서를 조작하여 빛 조절 또는 물 주기 가능
-- 식물을 키우면서 관리할 수 있는 다이어리를 통해 사진과 기록을 남길 수 있음
-- AI 이미지 분류를 통한 식물 검색 기능 제공
+- 센서를 통해 얻은 데이터로 플랫폼에서 모니터링
+- 원격에서 명령을 내려 물 주기, LED 제어
+- 식물 다이어리를 통해 사진과 일지 기록
 
 ### 🕰️ 개발기간
 
-- 23.07.24. - 23.08.23.
+- 1차
+  - 23.07.24 - 23.08.23
+- 리팩토링
+  - 24.05.02 - 24.05.31
 
 ### 🧑‍🤝‍🧑 맴버구성
 
@@ -48,9 +50,6 @@
 ### Deploy
 
 <img src="https://img.shields.io/badge/amazonec2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white"> <img src="https://img.shields.io/badge/amazonrds-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white"> <img src="https://img.shields.io/badge/netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white">
-
-## Architecture
-![architecture](./image/architecture.png)
 
 ## User flowchart
 ![flow_chart](./image/flow%20chart.png)
