@@ -1,0 +1,45 @@
+# JPA
+spring:
+  profiles: # Managing Sensitive Info
+    active: prod # 기본 설정은 prod
+    include:
+      - secret
+    group:
+      prod:
+        - prod
+      local:
+        - local
+      dev:
+        - dev
+  jpa:
+    hibernate:
+      # 운영 서버는 validate
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  # Mail
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  servlet:
+    multipart: # Multipart File Limits
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    com:
+      keb: debug
+
+# JWT
+jwt:
+  header: 'Authorization'

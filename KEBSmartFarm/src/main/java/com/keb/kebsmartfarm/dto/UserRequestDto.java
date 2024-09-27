@@ -31,7 +31,7 @@ public class UserRequestDto {
                 .userNickname(userNickname)
                 .userEmail(userEmail)
                 .userPhoneNum(userPhoneNum)
-                .authority(Authority.ROLE_USER)
+                .authority(Authority.USER)
                 .userRegDate(LocalDateTime.now())
                 .build();
     }

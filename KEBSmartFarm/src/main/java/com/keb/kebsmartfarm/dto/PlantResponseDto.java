@@ -1,17 +1,18 @@
 package com.keb.kebsmartfarm.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.Plant;
+import com.keb.kebsmartfarm.entity.PlantStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.core.io.Resource;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @Getter
@@ -24,6 +25,10 @@ public class PlantResponseDto {
     @JsonIgnore
     private ArduinoKit arduinoKit;
     private LocalDateTime plantRegDate;
+    @JsonInclude(Include.NON_NULL)
+    private LocalDateTime plantHarvestDate;
+    @JsonIgnore
+    private PlantStatus status;
     @JsonIgnore
     private Path storedPath;
     private String profileImg;
@@ -35,6 +40,8 @@ public class PlantResponseDto {
                 .plantNum(plant.getPlantNum())
                 .arduinoKit(plant.getArduinoKit())
                 .plantRegDate(plant.getPlantRegDate())
+                .plantHarvestDate(plant.getPlantHarvestDate())
+                .status(plant.getStatus())
                 .storedPath(Path.of(plant.getStoredFilePath()))
                 .build();
     }

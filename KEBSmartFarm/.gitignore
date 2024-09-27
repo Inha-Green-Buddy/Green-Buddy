@@ -39,8 +39,9 @@ out/
 /src/main/resources/application-*.*
 /src/main/resources/keystore.p12
 /src/main/resources/pictures/
+/src/main/resources/*.sql
 
 ../arduino
 
 ### apple Finder ####
-.DS_Store
+**/.DS_Store

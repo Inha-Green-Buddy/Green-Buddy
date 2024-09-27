@@ -1,11 +1,13 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.TokenDto;
 import com.keb.kebsmartfarm.dto.UserRequestDto;
 import com.keb.kebsmartfarm.dto.UserResponseDto;
 import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.jwt.TokenProvider;
 import com.keb.kebsmartfarm.repository.UserRepository;
+import com.keb.kebsmartfarm.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +31,26 @@ public class AuthService {
     private final TokenProvider tokenProvider;
 
     public UserResponseDto signup(UserRequestDto requestDto) {
-        if (userRepository.existsByUserId(requestDto.getUserId())) {
-            throw new RuntimeException("이미 가입되어 있는 유저입니다");
-        }
+        validateDuplicateUserId(requestDto.getUserId());
+        validateDuplicateUserEmail(requestDto.getUserEmail());
         User user = requestDto.toUser(passwordEncoder);
         return UserResponseDto.of(userRepository.save(user));
+    }
+
+    public void validateDuplicateUserId(String userId) {
+        if (userRepository.existsByUserId(userId)) {
+            throw new RuntimeException(Error.ALREADY_EXIST_ID);
+        }
+    }
+
+    public void validateDuplicateUserEmail(String userEmail){
+        if (userRepository.existsByUserEmail(userEmail)) {
+            throw new RuntimeException(Error.ALREADY_EXIST_EMAIL);
+        }
+    }
+
+    public TokenDto getNewTokens(String accessToken, String refreshToken) {
+        return tokenProvider.reissueTokens(accessToken, refreshToken);
     }
 
     public TokenDto login(UserRequestDto requestDto) {
@@ -43,18 +60,28 @@ public class AuthService {
     }
 
     public void findPasswordByIdAndEmail(String userEmail, String userId) {
-        User user = this.userRepository.findByUserEmail(userEmail).orElseThrow(()-> new RuntimeException(userEmail + "에 해당하는 회원이 없습니다"));
+        User user = getUserByEmail(userEmail);
         if(!user.getUserId().equalsIgnoreCase(userId)){
-            throw  new RuntimeException(userId + "에 맞는 회원이 없습니다.");
+            throw  new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userId));
         }
+    }
+
+    private User getUserByEmail(String userEmail) {
+        return userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException(String.format(Error.USER_DOES_NOT_MACTH, userEmail)));
     }
 
     public Map<String, String> findIdByNameAndEmail(String userEmail, String userName) {
         Map<String, String> ret = new HashMap<>();
-        User user = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new RuntimeException(userEmail + "에 해당하는 회원이 없습니다."));
+        User user = getUserByEmail(userEmail);
         if(user.getUserName().equalsIgnoreCase(userName)){
             ret.put("userId", user.getUserId());
         }
         return ret;
+    }
+
+    public void logout() {
+        long userId = SecurityUtil.getCurrentUserId();
+        tokenProvider.deleteUserRefreshToken(userId);
     }
 }

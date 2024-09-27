@@ -1,7 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
 import com.keb.kebsmartfarm.entity.ArduinoKit;
-import com.keb.kebsmartfarm.entity.Plant;
 import com.keb.kebsmartfarm.entity.PlantWatering;
 import com.keb.kebsmartfarm.repository.PlantWaterRepository;
 import lombok.RequiredArgsConstructor;

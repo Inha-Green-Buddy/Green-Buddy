@@ -1,5 +1,6 @@
 package com.keb.kebsmartfarm.service;
 
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.entity.User;
 import com.keb.kebsmartfarm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         return userRepository.findByUserId(userId)
                 .map(this::createUserDetails)
-                .orElseThrow(() -> new UsernameNotFoundException(userId + " 를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format(Error.USER_DOES_NOT_MACTH, userId)));
     }
 
     private UserDetails createUserDetails(User user) {

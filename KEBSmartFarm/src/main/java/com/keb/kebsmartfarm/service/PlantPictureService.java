@@ -6,8 +6,6 @@ import org.springframework.core.io.Resource;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 public interface PlantPictureService {
 

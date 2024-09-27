@@ -1,12 +1,15 @@
 package com.keb.kebsmartfarm.service;
 
-import com.keb.kebsmartfarm.config.JsonUtil;
+import com.keb.kebsmartfarm.entity.PlantStatus;
+import com.keb.kebsmartfarm.util.JsonUtil;
 import com.keb.kebsmartfarm.config.MqttConfig;
-import com.keb.kebsmartfarm.config.PictureUtils;
-import com.keb.kebsmartfarm.config.SecurityUtil;
+import com.keb.kebsmartfarm.util.PictureUtils;
+import com.keb.kebsmartfarm.util.SecurityUtil;
+import com.keb.kebsmartfarm.constant.Message.Error;
 import com.keb.kebsmartfarm.dto.*;
 import com.keb.kebsmartfarm.entity.ArduinoKit;
 import com.keb.kebsmartfarm.entity.ReleasedKit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +32,6 @@ public class KitAndPlantManageServiceImpl implements KitAndPlantManageService {
 
     private final MqttConfig.MyGateway myGateway;
     private final PlantService plantService;
-    private final PreviousPlantService previousPlantService;
-
     private final String TOPIC;
 
     private final Map<String, String> COMMAND;
@@ -46,15 +46,14 @@ public class KitAndPlantManageServiceImpl implements KitAndPlantManageService {
                                         ReleasedKitService releasedKitService,
                                         @Qualifier("mqttConfig.MyGateway") MqttConfig.MyGateway myGateway,
                                         PlantService plantService,
-                                        PreviousPlantService previousPlantService,
                                         @Value("${Adafruit.username}") String username,
                                         MqttReceiver mqttReceiver,
-                                        PlantWateringService plantWateringService, PlantPictureService plantPictureService) {
+                                        PlantWateringService plantWateringService,
+                                        PlantPictureService plantPictureService) {
         this.arduinoKitService = arduinoKitService;
         this.releasedKitService = releasedKitService;
         this.myGateway = myGateway;
         this.plantService = plantService;
-        this.previousPlantService = previousPlantService;
         this.TOPIC = String.format("%s/f/", username);
         this.plantPictureService = plantPictureService;
         this.COMMAND = new HashMap<>();
@@ -67,7 +66,7 @@ public class KitAndPlantManageServiceImpl implements KitAndPlantManageService {
     @Transactional
     public boolean validateKit(String serialNum) {
         ReleasedKit releasedKit = releasedKitService.validateKitSerialNumber(serialNum)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 시리얼 번호입니다."));
+                .orElseThrow(() -> new RuntimeException(Error.INVALID_SERIAL_NUMBER));
         return arduinoKitService.isKitRegistered(serialNum);
     }
 
@@ -75,7 +74,7 @@ public class KitAndPlantManageServiceImpl implements KitAndPlantManageService {
     @Transactional
     public ArduinoResponseDto addKit(ArduinoRequestDto requestDto) {
         ReleasedKit releasedKit = releasedKitService.validateKitSerialNumber(requestDto.getSerialNum())
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 시리얼 번호입니다."));
+                .orElseThrow(() -> new RuntimeException(Error.INVALID_SERIAL_NUMBER));
         // topic으로 등록 요청 고려
 //        myGateway.sendToMqtt(JsonUtil.toJson(CommandDto.of("")));
         return arduinoKitService.createArduinoKit(requestDto, releasedKit);
@@ -107,12 +106,13 @@ public class KitAndPlantManageServiceImpl implements KitAndPlantManageService {
 
     @Override
     @Transactional
-    public PreviousPlantDto completingPlantGrowth(long kitNo) {
+    public PlantResponseDto completingPlantGrowth(long kitNo) {
         ArduinoKit arduinoKit = arduinoKitService.findKitByKitNo(kitNo);
         COMMAND.replace("command", "growth");
         myGateway.sendToMqtt(JsonUtil.toJson(COMMAND),
                 TOPIC + arduinoKit.getSerialNum() + "-command");
-        return previousPlantService.movePlantToPreviousPlant(arduinoKit);
+
+        return plantService.cultivatePlant(arduinoKit);
     }
 
     @Override
@@ -122,25 +122,24 @@ public class KitAndPlantManageServiceImpl implements KitAndPlantManageService {
         COMMAND.replace("command", "delPlant");
         myGateway.sendToMqtt(JsonUtil.toJson(COMMAND),
                 TOPIC + arduinoKit.getSerialNum() + "-command");
-        plantService.deletePlant(arduinoKit);
+        plantService.deleteActivePlant(arduinoKit);
     }
 
     @Override
     @Transactional
-    public Map<String, Object> gettingListOfUsersPlant() {
-        Map<String, Object> res = new HashMap<>();
-        // 키웠던 식물
+    public Map<PlantStatus, List<PlantResponseDto>> gettingListOfUsersPlant() {
         long seqNum = SecurityUtil.getCurrentUserId();
-        res.put("previousPlant", previousPlantService.getPlantList(seqNum));
-        // 키우는 식물
-        List<PlantResponseDto> plants = arduinoKitService.getMyArduinoKits(seqNum).stream()
-                .map(ArduinoKit::getActivePlant)
-                .filter(Optional::isPresent)
-                .flatMap(Optional::stream)
-                .map(PlantResponseDto::of)
-                .toList();
-        res.put("plant", plants);
-        return res;
+        return arduinoKitService.getMyArduinoKits(seqNum)
+                .stream()
+                .map(ArduinoKit::getPlantsByStatus)
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.toUnmodifiableMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (list1, list2) -> {
+                            list1.addAll(list2);
+                            return list1;
+                        }));
     }
 
     @Override

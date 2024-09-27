@@ -1,6 +1,7 @@
-package com.keb.kebsmartfarm.config;
+package com.keb.kebsmartfarm.util;
 
 import com.keb.kebsmartfarm.Controller.KitController;
+import com.keb.kebsmartfarm.constant.Message.Error;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,12 +39,12 @@ public class PictureUtils {
 
     public static Path getDestPath(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new IllegalStateException("빈 파일은 저장할 수 없습니다.");
+            throw new IllegalStateException(Error.CAN_NOT_STORE_EMPTY_FILE);
         }
 
         String contentType = file.getContentType();
         if (contentType != null && !(contentType.contains("image/jpeg") || contentType.contains("image/png") || contentType.contains("image/gif")))
-            throw new IllegalStateException("이미지 파일이 아닙니다.");
+            throw new IllegalStateException(Error.NOT_IMAGE_FILE);
 
         Path destinationFile = rootLocation.resolve(
                         Paths.get(LocalDateTime.now().toString() + "-" + UUID.randomUUID() + "-" + file.getOriginalFilename()))
@@ -53,7 +54,7 @@ public class PictureUtils {
 
         if (!destinationFile.getParent().equals(rootLocation.toAbsolutePath())) {
             // This is a security check
-            throw new IllegalStateException("파일은 현재 디렉토리 바깥에 저장될 수 없습니다.");
+            throw new IllegalStateException(Error.CAN_NOT_STORE_OUTSIDE_OF_DIRECTORY);
         }
         return destinationFile;
     }
